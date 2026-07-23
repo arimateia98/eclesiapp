@@ -35,6 +35,7 @@ As setas representam dependências permitidas. Comunicação inversa deve ocorre
 `app/Shared` recebe apenas elementos realmente transversais, como resposta de saúde, relógio, auditoria e contratos técnicos.
 
 O recorte implementado de identidade, organizações, papéis e relações está detalhado em [Identity e Organizations](identity-and-organizations.md).
+O fluxo web e o tratamento atual de sessão estão detalhados em [Painel administrativo](frontend-admin.md).
 
 ## Regras de dependência
 

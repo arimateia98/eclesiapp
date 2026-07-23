@@ -1,6 +1,8 @@
 <?php
 
 use App\Modules\Identity\Http\Controllers\AuthController;
+use App\Modules\Identity\Http\Controllers\PersonAccountInvitationAcceptanceController;
+use App\Modules\Identity\Http\Controllers\PersonAccountInvitationController;
 use App\Modules\Identity\Http\Controllers\PersonProfileController;
 use App\Modules\Organizations\Http\Controllers\OrganizationController;
 use App\Modules\Organizations\Http\Controllers\OrganizationMemberController;
@@ -14,6 +16,8 @@ Route::prefix('v1')->group(function (): void {
     Route::middleware('throttle:5,1')->group(function (): void {
         Route::post('/auth/register', [AuthController::class, 'register'])->name('api.v1.auth.register');
         Route::post('/auth/login', [AuthController::class, 'login'])->name('api.v1.auth.login');
+        Route::post('/auth/account-invitations/accept', [PersonAccountInvitationAcceptanceController::class, 'store'])
+            ->name('api.v1.auth.account-invitations.accept');
     });
 
     Route::middleware('auth:sanctum')->group(function (): void {
@@ -24,8 +28,14 @@ Route::prefix('v1')->group(function (): void {
         Route::get('/organizations', [OrganizationController::class, 'index'])->name('api.v1.organizations.index');
         Route::post('/organizations', [OrganizationController::class, 'store'])->name('api.v1.organizations.store');
         Route::get('/organizations/{organization}', [OrganizationController::class, 'show'])->name('api.v1.organizations.show');
+        Route::get('/organizations/{organization}/members', [OrganizationMemberController::class, 'index'])
+            ->name('api.v1.organizations.members.index');
         Route::post('/organizations/{organization}/members', [OrganizationMemberController::class, 'store'])
             ->name('api.v1.organizations.members.store');
+        Route::post(
+            '/organizations/{organization}/members/{person}/account-invitations',
+            [PersonAccountInvitationController::class, 'store'],
+        )->name('api.v1.organizations.members.account-invitations.store');
         Route::post('/organizations/{organization}/relationships', [OrganizationRelationshipController::class, 'store'])
             ->name('api.v1.organizations.relationships.store');
     });

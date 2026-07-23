@@ -1339,3 +1339,62 @@ Apresente:
 4. plano incremental para o primeiro MVP;
 5. primeira tarefa recomendada com critérios de aceite.
 ```
+
+---
+
+## 34. Estado atual do projeto
+
+Última atualização: 23 de julho de 2026.
+
+Esta seção deve ser atualizada ao concluir cada incremento relevante. Ela registra estado, não substitui as regras arquiteturais anteriores.
+
+### Concluído
+
+- fundação Docker com `app`, `nginx`, `frontend`, `postgres`, `redis`, `queue`, `scheduler` e `mailpit`;
+- health checks, ambiente local, CI, lint, análise estática e testes base;
+- autenticação por token Sanctum com cadastro, login e logout;
+- separação entre `users` e `people`;
+- organizações, hierarquia opcional e relações flexíveis;
+- memberships e matriz inicial de papéis;
+- policies, filtros explícitos e testes de isolamento organizacional;
+- cadastro de pessoa sem conta por coordenação;
+- auditoria transacional para organização, membership e relação sem dados pessoais privados;
+- migrations com ULIDs, foreign keys, índices parciais, checks PostgreSQL e timestamps com timezone;
+- painel Vue responsivo para cadastro, login, logout, listagem e criação de organizações;
+- cliente HTTP e sessão tipados, com loading, vazio, sucesso, falha e expiração explícitos;
+- área da organização com listagem e cadastro de pessoas sem criação automática de usuário;
+- convite de conta de uso único, armazenado por hash, com expiração de 48 horas e envio após commit;
+- aceite transacional do convite, verificação de e-mail, vínculo entre `people` e `users` e auditoria;
+- fluxo completo no painel para envio pelo Mailpit e criação de acesso pelo link recebido;
+- documentação de Identity, Organizations, segurança, tenancy e painel administrativo.
+
+### Em andamento
+
+- tipos de ministério, funções de serviço e capacidades das pessoas;
+- desenho das permissões organizacionais para manutenção dessas capacidades.
+
+### Pendente para o primeiro MVP
+
+1. recuperação de senha e verificação de e-mail;
+2. autenticação web stateful com cookie `HttpOnly` antes de produção;
+3. aceite ou rejeição bilateral de relações entre organizações;
+4. inativação de membership, transferência de propriedade e histórico completo desses fluxos;
+5. tipos de ministério, funções de serviço e capacidades das pessoas;
+6. eventos, locais e tipos de evento;
+7. missões internas e vagas individuais;
+8. designações, publicação e histórico de escala;
+9. indisponibilidades e políticas configuráveis de conflito;
+10. validação concorrente de conflitos com bloqueio de pessoa;
+11. exceções autorizadas com justificativa;
+12. notificações e outbox;
+13. telas administrativas para os fluxos internos restantes;
+14. testes PostgreSQL dedicados e testes de concorrência;
+15. piloto controlado, observabilidade e endurecimento de produção.
+
+### Fora do primeiro MVP
+
+- aplicativo mobile e push;
+- trocas de escala;
+- música, hinário e repertório;
+- missões públicas, candidaturas e convites entre organizações;
+- geolocalização, relatórios e integrações externas.

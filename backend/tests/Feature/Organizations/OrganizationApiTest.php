@@ -104,6 +104,13 @@ final class OrganizationApiTest extends TestCase
             'role' => 'coordinator',
         ])->assertCreated()->json('data.person.id');
 
+        $this->getJson("/api/v1/organizations/{$organizationId}/members")
+            ->assertOk()
+            ->assertJsonFragment([
+                'id' => $coordinatorPersonId,
+                'email' => 'coordenador@example.test',
+            ]);
+
         $coordinator = User::factory()->create(['email' => 'coordenador@example.test']);
         $this->assertDatabaseHas('people', ['id' => $coordinatorPersonId, 'user_id' => null]);
         Person::query()->findOrFail($coordinatorPersonId)->update(['user_id' => $coordinator->getKey()]);
