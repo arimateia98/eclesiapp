@@ -13,6 +13,8 @@ O painel Vue oferece um fluxo navegável para:
 - abrir a área de uma organização autorizada;
 - listar membros ativos;
 - cadastrar uma pessoa sem criar usuário;
+- criar tipos de ministério e funções de serviço conforme o papel do usuário;
+- consultar, atribuir e remover competências das pessoas;
 - enviar um convite de acesso para a pessoa cadastrada;
 - aceitar o convite por link e vincular uma nova conta ao perfil existente.
 
@@ -26,6 +28,7 @@ O fluxo usa composição de telas em `App.vue`, sem roteador ou estado global. A
 - `src/components/InvitationAcceptancePanel.vue`: criação de acesso a partir do convite;
 - `src/components/OrganizationDashboard.vue`: listagem e criação de organizações;
 - `src/components/OrganizationWorkspace.vue`: membros, cadastro de pessoa e convite;
+- `src/components/MinistryCapabilitiesPanel.vue`: catálogo e competências pessoais;
 - `src/App.vue`: coordenação de sessão, navegação local, carregamento e expiração.
 
 Componentes visuais não chamam `fetch` diretamente. O serviço da API centraliza headers, envelopes, autenticação e erros previsíveis. Os componentes emitem intenções e a aplicação coordena o estado assíncrono.

@@ -1366,12 +1366,17 @@ Esta seção deve ser atualizada ao concluir cada incremento relevante. Ela regi
 - convite de conta de uso único, armazenado por hash, com expiração de 48 horas e envio após commit;
 - aceite transacional do convite, verificação de e-mail, vínculo entre `people` e `users` e auditoria;
 - fluxo completo no painel para envio pelo Mailpit e criação de acesso pelo link recebido;
+- módulo `Ministries` com tipos de ministério e funções de serviço isolados por organização;
+- competências pessoais atribuídas somente a membros ativos, com proteção contra vínculo cruzado;
+- permissões de catálogo para owner/administrator e de atribuição para coordenação;
+- auditoria transacional de criação, atribuição e remoção de funções;
+- painel para catálogo de ministérios e gestão das competências de cada pessoa;
 - documentação de Identity, Organizations, segurança, tenancy e painel administrativo.
 
 ### Em andamento
 
-- tipos de ministério, funções de serviço e capacidades das pessoas;
-- desenho das permissões organizacionais para manutenção dessas capacidades.
+- eventos, locais e tipos de evento;
+- definição do primeiro fluxo de missão interna e suas vagas individuais.
 
 ### Pendente para o primeiro MVP
 
@@ -1379,17 +1384,16 @@ Esta seção deve ser atualizada ao concluir cada incremento relevante. Ela regi
 2. autenticação web stateful com cookie `HttpOnly` antes de produção;
 3. aceite ou rejeição bilateral de relações entre organizações;
 4. inativação de membership, transferência de propriedade e histórico completo desses fluxos;
-5. tipos de ministério, funções de serviço e capacidades das pessoas;
-6. eventos, locais e tipos de evento;
-7. missões internas e vagas individuais;
-8. designações, publicação e histórico de escala;
-9. indisponibilidades e políticas configuráveis de conflito;
-10. validação concorrente de conflitos com bloqueio de pessoa;
-11. exceções autorizadas com justificativa;
-12. notificações e outbox;
-13. telas administrativas para os fluxos internos restantes;
-14. testes PostgreSQL dedicados e testes de concorrência;
-15. piloto controlado, observabilidade e endurecimento de produção.
+5. eventos, locais e tipos de evento;
+6. missões internas e vagas individuais;
+7. designações, publicação e histórico de escala;
+8. indisponibilidades e políticas configuráveis de conflito;
+9. validação concorrente de conflitos com bloqueio de pessoa;
+10. exceções autorizadas com justificativa;
+11. notificações e outbox;
+12. telas administrativas para os fluxos internos restantes;
+13. testes PostgreSQL dedicados e testes de concorrência;
+14. piloto controlado, observabilidade e endurecimento de produção.
 
 ### Fora do primeiro MVP
 

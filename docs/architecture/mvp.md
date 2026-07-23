@@ -45,5 +45,6 @@ Cada incremento exige migration reversível, autorização, teste de isolamento,
 
 - fundação executável: concluída;
 - Identity e Organizations: primeiro recorte concluído, incluindo autenticação por token, criação e isolamento;
-- vínculo seguro por convite para pessoas pré-cadastradas: pendente;
-- Ministries e etapas posteriores: pendentes.
+- vínculo seguro por convite para pessoas pré-cadastradas: concluído;
+- Ministries: concluído no recorte de catálogo, funções e competências pessoais;
+- Events e Missions internas e etapas posteriores: pendentes.

@@ -4,6 +4,9 @@ use App\Modules\Identity\Http\Controllers\AuthController;
 use App\Modules\Identity\Http\Controllers\PersonAccountInvitationAcceptanceController;
 use App\Modules\Identity\Http\Controllers\PersonAccountInvitationController;
 use App\Modules\Identity\Http\Controllers\PersonProfileController;
+use App\Modules\Ministries\Http\Controllers\MinistryTypeController;
+use App\Modules\Ministries\Http\Controllers\PersonFunctionController;
+use App\Modules\Ministries\Http\Controllers\ServiceFunctionController;
 use App\Modules\Organizations\Http\Controllers\OrganizationController;
 use App\Modules\Organizations\Http\Controllers\OrganizationMemberController;
 use App\Modules\Organizations\Http\Controllers\OrganizationRelationshipController;
@@ -32,6 +35,26 @@ Route::prefix('v1')->group(function (): void {
             ->name('api.v1.organizations.members.index');
         Route::post('/organizations/{organization}/members', [OrganizationMemberController::class, 'store'])
             ->name('api.v1.organizations.members.store');
+        Route::get('/organizations/{organization}/ministry-types', [MinistryTypeController::class, 'index'])
+            ->name('api.v1.organizations.ministry-types.index');
+        Route::post('/organizations/{organization}/ministry-types', [MinistryTypeController::class, 'store'])
+            ->name('api.v1.organizations.ministry-types.store');
+        Route::get('/organizations/{organization}/service-functions', [ServiceFunctionController::class, 'index'])
+            ->name('api.v1.organizations.service-functions.index');
+        Route::post('/organizations/{organization}/service-functions', [ServiceFunctionController::class, 'store'])
+            ->name('api.v1.organizations.service-functions.store');
+        Route::get(
+            '/organizations/{organization}/members/{person}/functions',
+            [PersonFunctionController::class, 'index'],
+        )->name('api.v1.organizations.members.functions.index');
+        Route::post(
+            '/organizations/{organization}/members/{person}/functions',
+            [PersonFunctionController::class, 'store'],
+        )->name('api.v1.organizations.members.functions.store');
+        Route::delete(
+            '/organizations/{organization}/members/{person}/functions/{serviceFunction}',
+            [PersonFunctionController::class, 'destroy'],
+        )->name('api.v1.organizations.members.functions.destroy');
         Route::post(
             '/organizations/{organization}/members/{person}/account-invitations',
             [PersonAccountInvitationController::class, 'store'],

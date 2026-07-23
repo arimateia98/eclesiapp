@@ -15,6 +15,11 @@ final class ListAccessibleOrganizations
     public function execute(User $user, int $perPage): LengthAwarePaginator
     {
         return Organization::query()
+            ->with(['memberships' => function ($memberships) use ($user): void {
+                $memberships
+                    ->where('status', MembershipStatus::Active)
+                    ->whereHas('person', fn (Builder $people) => $people->where('user_id', $user->getKey()));
+            }])
             ->where(function (Builder $query) use ($user): void {
                 $query
                     ->where('visibility', OrganizationVisibility::Public)

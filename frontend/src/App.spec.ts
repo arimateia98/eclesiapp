@@ -8,6 +8,13 @@ const apiMocks = vi.hoisted(() => ({
   fetchOrganizations: vi.fn(),
   createOrganization: vi.fn(),
   fetchOrganizationMembers: vi.fn(),
+  fetchMinistryTypes: vi.fn(),
+  fetchServiceFunctions: vi.fn(),
+  fetchPersonFunctions: vi.fn(),
+  createMinistryType: vi.fn(),
+  createServiceFunction: vi.fn(),
+  assignPersonFunction: vi.fn(),
+  removePersonFunction: vi.fn(),
   addOrganizationMember: vi.fn(),
   inviteOrganizationMember: vi.fn(),
   logout: vi.fn(),
@@ -41,6 +48,7 @@ const organization: Organization = {
   status: 'active',
   visibility: 'private',
   timezone: 'America/Fortaleza',
+  current_user_role: 'owner',
   created_at: '2026-07-22T12:00:00Z',
 }
 
@@ -74,6 +82,13 @@ describe('App', () => {
     apiMocks.fetchOrganizations.mockResolvedValue([])
     apiMocks.createOrganization.mockResolvedValue(organization)
     apiMocks.fetchOrganizationMembers.mockResolvedValue([membership])
+    apiMocks.fetchMinistryTypes.mockResolvedValue([])
+    apiMocks.fetchServiceFunctions.mockResolvedValue([])
+    apiMocks.fetchPersonFunctions.mockResolvedValue([])
+    apiMocks.createMinistryType.mockResolvedValue(undefined)
+    apiMocks.createServiceFunction.mockResolvedValue(undefined)
+    apiMocks.assignPersonFunction.mockResolvedValue(undefined)
+    apiMocks.removePersonFunction.mockResolvedValue(undefined)
     apiMocks.addOrganizationMember.mockResolvedValue(membership)
     apiMocks.inviteOrganizationMember.mockResolvedValue({
       id: '01KINVITE',

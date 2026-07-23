@@ -7,32 +7,52 @@ import OrganizationWorkspace from './components/OrganizationWorkspace.vue'
 import {
   addOrganizationMember,
   ApiError,
+  assignPersonFunction,
+  createMinistryType,
   createOrganization,
+  createServiceFunction,
   fetchHealth,
+  fetchMinistryTypes,
   fetchOrganizationMembers,
   fetchOrganizations,
+  fetchPersonFunctions,
+  fetchServiceFunctions,
   inviteOrganizationMember,
   logout,
+  removePersonFunction,
 } from './services/api'
 import { clearSession, persistSession, restoreSession } from './services/session'
 import type {
   AddOrganizationMemberInput,
   AuthSession,
+  CreateMinistryTypeInput,
   CreateOrganizationInput,
+  CreateServiceFunctionInput,
+  MinistryType,
   Organization,
   OrganizationMembership,
+  PersonFunction,
+  ServiceFunction,
 } from './types/api'
 
 const session = ref<AuthSession | null>(restoreSession())
 const organizations = ref<Organization[]>([])
 const selectedOrganization = ref<Organization | null>(null)
 const members = ref<OrganizationMembership[]>([])
+const ministryTypes = ref<MinistryType[]>([])
+const serviceFunctions = ref<ServiceFunction[]>([])
+const personFunctions = ref<PersonFunction[]>([])
+const selectedPersonId = ref<string | null>(null)
 const invitationToken = ref(new window.URLSearchParams(window.location.search).get('invitation'))
 const apiOnline = ref(false)
 const loadingOrganizations = ref(false)
 const creatingOrganization = ref(false)
 const loadingMembers = ref(false)
+const loadingCatalog = ref(false)
+const loadingCapabilities = ref(false)
 const addingMember = ref(false)
+const catalogBusy = ref<'type' | 'function' | null>(null)
+const updatingFunctionId = ref<string | null>(null)
 const invitingPersonId = ref<string | null>(null)
 const dashboardError = ref<string | null>(null)
 const dashboardNotice = ref<string | null>(null)
@@ -68,6 +88,10 @@ function handleExpiredSession(error: unknown): boolean {
     organizations.value = []
     selectedOrganization.value = null
     members.value = []
+    ministryTypes.value = []
+    serviceFunctions.value = []
+    personFunctions.value = []
+    selectedPersonId.value = null
 
     return true
   }
@@ -144,15 +168,168 @@ async function handleCreateOrganization(input: CreateOrganizationInput): Promise
 async function handleSelectOrganization(organization: Organization): Promise<void> {
   selectedOrganization.value = organization
   members.value = []
+  ministryTypes.value = []
+  serviceFunctions.value = []
+  personFunctions.value = []
+  selectedPersonId.value = null
   workspaceNotice.value = null
-  await loadMembers()
+  await Promise.all([loadMembers(), loadCatalog()])
 }
 
 function handleCloseWorkspace(): void {
   selectedOrganization.value = null
   members.value = []
+  ministryTypes.value = []
+  serviceFunctions.value = []
+  personFunctions.value = []
+  selectedPersonId.value = null
   workspaceError.value = null
   workspaceNotice.value = null
+}
+
+async function loadCatalog(): Promise<void> {
+  if (!session.value || !selectedOrganization.value) {
+    return
+  }
+
+  loadingCatalog.value = true
+  workspaceError.value = null
+
+  try {
+    const [types, functions] = await Promise.all([
+      fetchMinistryTypes(session.value.token, selectedOrganization.value.id),
+      fetchServiceFunctions(session.value.token, selectedOrganization.value.id),
+    ])
+    ministryTypes.value = types
+    serviceFunctions.value = functions
+  } catch (error) {
+    if (!handleExpiredSession(error)) {
+      workspaceError.value = messageFrom(error)
+    }
+  } finally {
+    loadingCatalog.value = false
+  }
+}
+
+async function handleCreateMinistryType(input: CreateMinistryTypeInput): Promise<void> {
+  if (!session.value || !selectedOrganization.value) {
+    return
+  }
+
+  catalogBusy.value = 'type'
+  workspaceError.value = null
+  workspaceNotice.value = null
+
+  try {
+    const ministryType = await createMinistryType(
+      session.value.token,
+      selectedOrganization.value.id,
+      input,
+    )
+    ministryTypes.value = [...ministryTypes.value, ministryType].sort((left, right) =>
+      left.name.localeCompare(right.name, 'pt-BR'),
+    )
+    workspaceNotice.value = `${ministryType.name} foi adicionado ao catálogo de ministérios.`
+  } catch (error) {
+    if (!handleExpiredSession(error)) {
+      workspaceError.value = messageFrom(error)
+    }
+  } finally {
+    catalogBusy.value = null
+  }
+}
+
+async function handleCreateServiceFunction(input: CreateServiceFunctionInput): Promise<void> {
+  if (!session.value || !selectedOrganization.value) {
+    return
+  }
+
+  catalogBusy.value = 'function'
+  workspaceError.value = null
+  workspaceNotice.value = null
+
+  try {
+    const serviceFunction = await createServiceFunction(
+      session.value.token,
+      selectedOrganization.value.id,
+      input,
+    )
+    serviceFunctions.value = [...serviceFunctions.value, serviceFunction].sort((left, right) =>
+      left.name.localeCompare(right.name, 'pt-BR'),
+    )
+    workspaceNotice.value = `${serviceFunction.name} foi adicionada às funções de serviço.`
+  } catch (error) {
+    if (!handleExpiredSession(error)) {
+      workspaceError.value = messageFrom(error)
+    }
+  } finally {
+    catalogBusy.value = null
+  }
+}
+
+async function handleSelectPerson(personId: string): Promise<void> {
+  if (!session.value || !selectedOrganization.value) {
+    return
+  }
+
+  selectedPersonId.value = personId
+  personFunctions.value = []
+  loadingCapabilities.value = true
+  workspaceError.value = null
+
+  try {
+    personFunctions.value = await fetchPersonFunctions(
+      session.value.token,
+      selectedOrganization.value.id,
+      personId,
+    )
+  } catch (error) {
+    if (!handleExpiredSession(error)) {
+      workspaceError.value = messageFrom(error)
+    }
+  } finally {
+    loadingCapabilities.value = false
+  }
+}
+
+async function handleToggleFunction(serviceFunctionId: string, assigned: boolean): Promise<void> {
+  if (!session.value || !selectedOrganization.value || !selectedPersonId.value) {
+    return
+  }
+
+  updatingFunctionId.value = serviceFunctionId
+  workspaceError.value = null
+  workspaceNotice.value = null
+
+  try {
+    if (assigned) {
+      await removePersonFunction(
+        session.value.token,
+        selectedOrganization.value.id,
+        selectedPersonId.value,
+        serviceFunctionId,
+      )
+      personFunctions.value = personFunctions.value.filter(
+        (assignment) => assignment.service_function_id !== serviceFunctionId,
+      )
+      workspaceNotice.value = 'A função foi removida da pessoa.'
+    } else {
+      const assignment = await assignPersonFunction(
+        session.value.token,
+        selectedOrganization.value.id,
+        selectedPersonId.value,
+        serviceFunctionId,
+      )
+      personFunctions.value = [...personFunctions.value, assignment]
+      workspaceNotice.value = 'A função foi atribuída à pessoa.'
+    }
+  } catch (error) {
+    if (!handleExpiredSession(error)) {
+      workspaceError.value = messageFrom(error)
+    }
+  } finally {
+    updatingFunctionId.value = null
+  }
 }
 
 async function loadMembers(): Promise<void> {
@@ -241,6 +418,10 @@ async function handleLogout(): Promise<void> {
   organizations.value = []
   selectedOrganization.value = null
   members.value = []
+  ministryTypes.value = []
+  serviceFunctions.value = []
+  personFunctions.value = []
+  selectedPersonId.value = null
   dashboardNotice.value = null
   dashboardError.value = null
   workspaceNotice.value = null
@@ -300,7 +481,14 @@ async function handleLogout(): Promise<void> {
     :session="session"
     :organization="selectedOrganization"
     :members="members"
+    :ministry-types="ministryTypes"
+    :service-functions="serviceFunctions"
+    :person-functions="personFunctions"
+    :selected-person-id="selectedPersonId"
     :loading="loadingMembers"
+    :loading-catalog="loadingCatalog || loadingCapabilities"
+    :catalog-busy="catalogBusy"
+    :updating-function-id="updatingFunctionId"
     :adding="addingMember"
     :inviting-person-id="invitingPersonId"
     :error="workspaceError"
@@ -310,6 +498,11 @@ async function handleLogout(): Promise<void> {
     @refresh="loadMembers"
     @add-member="handleAddMember"
     @invite="handleInviteMember"
+    @refresh-catalog="loadCatalog"
+    @create-ministry-type="handleCreateMinistryType"
+    @create-service-function="handleCreateServiceFunction"
+    @select-person="handleSelectPerson"
+    @toggle-function="handleToggleFunction"
   />
 
   <OrganizationDashboard

@@ -987,6 +987,212 @@ button:disabled {
   margin-top: 0;
 }
 
+.capabilities-panel {
+  margin: 0 0 2rem;
+  padding: clamp(1.25rem, 4vw, 2rem);
+  border: 1px solid var(--line);
+  border-radius: 1.2rem;
+  background: linear-gradient(135deg, rgb(255 253 248 / 92%), rgb(238 242 236 / 78%));
+}
+
+.capabilities-panel__heading {
+  margin-bottom: 1.5rem;
+}
+
+.capabilities-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(17rem, 0.65fr);
+  gap: 2rem;
+}
+
+.catalog-column,
+.person-capabilities {
+  min-width: 0;
+}
+
+.catalog-forms {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.compact-form {
+  display: grid;
+  align-content: end;
+  gap: 0.65rem;
+  padding: 1rem;
+  border: 1px solid rgb(42 89 68 / 12%);
+  border-radius: 0.9rem;
+  background: rgb(255 255 255 / 62%);
+}
+
+.compact-form .secondary-button {
+  width: 100%;
+}
+
+.ministry-list {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.ministry-card {
+  display: grid;
+  grid-template-columns: minmax(8rem, 0.35fr) minmax(0, 0.65fr);
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 0.85rem;
+  background: rgb(255 253 248 / 72%);
+}
+
+.ministry-card > div:first-child {
+  display: grid;
+  align-content: center;
+  gap: 0.25rem;
+}
+
+.ministry-card strong {
+  color: var(--ink);
+  font-size: 0.85rem;
+}
+
+.ministry-card > div:first-child span,
+.function-pills small {
+  color: #7b8982;
+  font-size: 0.68rem;
+}
+
+.function-pills {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.function-pills span {
+  padding: 0.38rem 0.58rem;
+  border-radius: 999px;
+  color: var(--pine);
+  background: #e4eee8;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.catalog-empty {
+  padding: 2rem;
+  border: 1px dashed rgb(42 89 68 / 22%);
+  border-radius: 0.9rem;
+  color: #687870;
+  text-align: center;
+}
+
+.catalog-empty strong {
+  color: var(--ink);
+}
+
+.catalog-empty p {
+  margin: 0.4rem 0 0;
+  font-size: 0.76rem;
+  line-height: 1.5;
+}
+
+.person-capabilities {
+  padding: 1.25rem;
+  border-radius: 1rem;
+  color: #f8f5ee;
+  background: var(--pine);
+}
+
+.person-capabilities .section-kicker {
+  color: #d7b987;
+}
+
+.person-capabilities h3 {
+  margin: 0.35rem 0 1rem;
+  font-family: "Newsreader", Georgia, serif;
+  font-size: 1.75rem;
+  font-weight: 500;
+}
+
+.person-capabilities .field > span {
+  color: #dce6df;
+}
+
+.person-capabilities select {
+  border-color: rgb(255 255 255 / 18%);
+  color: #f8f5ee;
+  background: rgb(255 255 255 / 10%);
+}
+
+.person-capabilities select option {
+  color: var(--ink);
+}
+
+.capability-list {
+  display: grid;
+  gap: 0.45rem;
+  margin-top: 1.2rem;
+}
+
+.capability-list > p {
+  margin: 0 0 0.35rem;
+  color: #cfdbd3;
+  font-size: 0.72rem;
+}
+
+.capability-toggle {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 0.75rem;
+  color: #e8eee9;
+  background: rgb(255 255 255 / 6%);
+  text-align: left;
+}
+
+.capability-toggle.is-assigned {
+  border-color: #d7b987;
+  color: #fff9ed;
+  background: rgb(215 185 135 / 15%);
+}
+
+.capability-toggle__check {
+  display: grid;
+  width: 1.9rem;
+  height: 1.9rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--pine);
+  background: #f2e4ce;
+  font-weight: 800;
+}
+
+.capability-toggle > span:last-child {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.capability-toggle strong {
+  font-size: 0.75rem;
+}
+
+.capability-toggle small {
+  color: #bfcfc5;
+  font-size: 0.62rem;
+}
+
+.capability-hint {
+  margin: 1.2rem 0 0;
+  color: #c8d5cd;
+  font-size: 0.74rem;
+  line-height: 1.6;
+}
+
 @keyframes shimmer {
   to {
     background-position-x: -200%;
@@ -1023,6 +1229,11 @@ button:disabled {
 
   .account-state {
     display: none;
+  }
+
+  .capabilities-grid,
+  .catalog-forms {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -1152,6 +1363,10 @@ button:disabled {
   .invite-button {
     min-width: auto;
     padding-inline: 0.65rem;
+  }
+
+  .ministry-card {
+    grid-template-columns: 1fr;
   }
 }
 

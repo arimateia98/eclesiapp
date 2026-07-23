@@ -56,11 +56,14 @@ Além do health check, o backend oferece o primeiro recorte de autenticação, p
 - `GET|POST /organizations/{id}/members` lista ou cadastra pessoa sem exigir conta;
 - `POST /organizations/{id}/members/{person}/account-invitations` envia convite de acesso;
 - `POST /auth/account-invitations/accept` cria a conta e vincula a pessoa por token de uso único;
+- `GET|POST /organizations/{id}/ministry-types` mantém o catálogo de ministérios;
+- `GET|POST /organizations/{id}/service-functions` mantém funções de serviço;
+- `GET|POST|DELETE /organizations/{id}/members/{person}/functions` mantém competências pessoais;
 - `POST /organizations/{id}/relationships` relaciona organizações com autorização nos dois lados.
 
 O contrato e a matriz de permissões estão em [Identity e Organizations](docs/architecture/identity-and-organizations.md).
 
-O painel em <http://localhost:5173> permite criar uma conta, entrar, sair, administrar organizações, cadastrar pessoas sem conta e enviar convites de acesso. No ambiente local, os convites chegam ao [Mailpit](http://localhost:8025). O estado e as decisões do frontend estão em [Painel administrativo](docs/architecture/frontend-admin.md).
+O painel em <http://localhost:5173> permite administrar organizações e pessoas, configurar tipos de ministério e funções, atribuir competências e enviar convites de acesso. No ambiente local, os convites chegam ao [Mailpit](http://localhost:8025). O estado e as decisões do frontend estão em [Painel administrativo](docs/architecture/frontend-admin.md).
 
 As portas do banco e do Redis são publicadas apenas em `127.0.0.1`. Os valores dos arquivos de exemplo são exclusivos para desenvolvimento e devem ser substituídos fora do ambiente local.
 

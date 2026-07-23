@@ -1,18 +1,31 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue'
+import MinistryCapabilitiesPanel from './MinistryCapabilitiesPanel.vue'
 import type {
   AddOrganizationMemberInput,
   AuthSession,
+  CreateMinistryTypeInput,
+  CreateServiceFunctionInput,
   MembershipRole,
+  MinistryType,
   Organization,
   OrganizationMembership,
+  PersonFunction,
+  ServiceFunction,
 } from '../types/api'
 
 const props = defineProps<{
   session: AuthSession
   organization: Organization
   members: OrganizationMembership[]
+  ministryTypes: MinistryType[]
+  serviceFunctions: ServiceFunction[]
+  personFunctions: PersonFunction[]
+  selectedPersonId: string | null
   loading: boolean
+  loadingCatalog: boolean
+  catalogBusy: 'type' | 'function' | null
+  updatingFunctionId: string | null
   adding: boolean
   invitingPersonId: string | null
   error: string | null
@@ -25,6 +38,11 @@ const emit = defineEmits<{
   refresh: []
   addMember: [input: AddOrganizationMemberInput]
   invite: [personId: string]
+  refreshCatalog: []
+  createMinistryType: [input: CreateMinistryTypeInput]
+  createServiceFunction: [input: CreateServiceFunctionInput]
+  selectPerson: [personId: string]
+  toggleFunction: [serviceFunctionId: string, assigned: boolean]
 }>()
 
 const showMemberForm = ref(false)
@@ -151,6 +169,24 @@ function submitMember(): void {
       >
         {{ error }}
       </p>
+
+      <MinistryCapabilitiesPanel
+        :organization="organization"
+        :members="members"
+        :ministry-types="ministryTypes"
+        :service-functions="serviceFunctions"
+        :person-functions="personFunctions"
+        :selected-person-id="selectedPersonId"
+        :loading="loadingCatalog"
+        :catalog-busy="catalogBusy"
+        :updating-function-id="updatingFunctionId"
+        :error="error"
+        @refresh="emit('refreshCatalog')"
+        @create-ministry-type="emit('createMinistryType', $event)"
+        @create-service-function="emit('createServiceFunction', $event)"
+        @select-person="emit('selectPerson', $event)"
+        @toggle-function="(serviceFunctionId, assigned) => emit('toggleFunction', serviceFunctionId, assigned)"
+      />
 
       <section
         v-if="showMemberForm"

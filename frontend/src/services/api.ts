@@ -7,11 +7,16 @@ import type {
   AuthResponse,
   AuthSession,
   CreateOrganizationInput,
+  CreateMinistryTypeInput,
+  CreateServiceFunctionInput,
   HealthData,
   LoginInput,
   Organization,
   OrganizationMembership,
+  MinistryType,
+  PersonFunction,
   RegisterInput,
+  ServiceFunction,
 } from '../types/api'
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '/api/v1'
@@ -192,4 +197,103 @@ export async function acceptAccountInvitation(
     token: payload.data.token,
     tokenType: payload.data.token_type,
   }
+}
+
+export async function fetchMinistryTypes(
+  token: string,
+  organizationId: string,
+): Promise<MinistryType[]> {
+  const payload = await request<ApiEnvelope<MinistryType[]>>(
+    `/organizations/${organizationId}/ministry-types?per_page=100`,
+    {},
+    token,
+  )
+
+  return payload.data
+}
+
+export async function createMinistryType(
+  token: string,
+  organizationId: string,
+  input: CreateMinistryTypeInput,
+): Promise<MinistryType> {
+  const payload = await request<ApiEnvelope<MinistryType>>(
+    `/organizations/${organizationId}/ministry-types`,
+    { method: 'POST', body: JSON.stringify(input) },
+    token,
+  )
+
+  return payload.data
+}
+
+export async function fetchServiceFunctions(
+  token: string,
+  organizationId: string,
+): Promise<ServiceFunction[]> {
+  const payload = await request<ApiEnvelope<ServiceFunction[]>>(
+    `/organizations/${organizationId}/service-functions?per_page=100`,
+    {},
+    token,
+  )
+
+  return payload.data
+}
+
+export async function createServiceFunction(
+  token: string,
+  organizationId: string,
+  input: CreateServiceFunctionInput,
+): Promise<ServiceFunction> {
+  const payload = await request<ApiEnvelope<ServiceFunction>>(
+    `/organizations/${organizationId}/service-functions`,
+    { method: 'POST', body: JSON.stringify(input) },
+    token,
+  )
+
+  return payload.data
+}
+
+export async function fetchPersonFunctions(
+  token: string,
+  organizationId: string,
+  personId: string,
+): Promise<PersonFunction[]> {
+  const payload = await request<ApiEnvelope<PersonFunction[]>>(
+    `/organizations/${organizationId}/members/${personId}/functions?per_page=100`,
+    {},
+    token,
+  )
+
+  return payload.data
+}
+
+export async function assignPersonFunction(
+  token: string,
+  organizationId: string,
+  personId: string,
+  serviceFunctionId: string,
+): Promise<PersonFunction> {
+  const payload = await request<ApiEnvelope<PersonFunction>>(
+    `/organizations/${organizationId}/members/${personId}/functions`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ service_function_id: serviceFunctionId }),
+    },
+    token,
+  )
+
+  return payload.data
+}
+
+export async function removePersonFunction(
+  token: string,
+  organizationId: string,
+  personId: string,
+  serviceFunctionId: string,
+): Promise<void> {
+  await request<void>(
+    `/organizations/${organizationId}/members/${personId}/functions/${serviceFunctionId}`,
+    { method: 'DELETE' },
+    token,
+  )
 }

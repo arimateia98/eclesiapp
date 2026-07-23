@@ -12,6 +12,10 @@ final class OrganizationResource extends JsonResource
     /** @return array<string, mixed> */
     public function toArray(Request $request): array
     {
+        $currentMembership = $this->resource->relationLoaded('memberships')
+            ? $this->resource->memberships->first()
+            : null;
+
         return [
             'id' => $this->resource->getKey(),
             'name' => $this->resource->name,
@@ -21,6 +25,7 @@ final class OrganizationResource extends JsonResource
             'status' => $this->resource->status->value,
             'visibility' => $this->resource->visibility->value,
             'timezone' => $this->resource->timezone,
+            'current_user_role' => $currentMembership?->role->value,
             'created_at' => $this->resource->created_at?->toISOString(),
         ];
     }

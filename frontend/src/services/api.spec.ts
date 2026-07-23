@@ -1,5 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { acceptAccountInvitation, fetchOrganizations, inviteOrganizationMember, login } from './api'
+import {
+  acceptAccountInvitation,
+  assignPersonFunction,
+  fetchOrganizations,
+  inviteOrganizationMember,
+  login,
+  removePersonFunction,
+} from './api'
 
 const fetchMock = vi.fn()
 
@@ -76,5 +83,25 @@ describe('serviço da API', () => {
     expect(new Headers(inviteOptions.headers).get('Authorization')).toBe('Bearer token-coordenador')
     expect(acceptUrl).toContain('/auth/account-invitations/accept')
     expect(new Headers(acceptOptions.headers).has('Authorization')).toBe(false)
+  })
+
+  it('atribui e remove funções usando o escopo completo da organização e da pessoa', async () => {
+    fetchMock
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 201,
+        json: async () => ({ data: { service_function_id: '01KFUNCTION' } }),
+      })
+      .mockResolvedValueOnce({ ok: true, status: 204 })
+
+    await assignPersonFunction('token', '01KORG', '01KPERSON', '01KFUNCTION')
+    await removePersonFunction('token', '01KORG', '01KPERSON', '01KFUNCTION')
+
+    const [assignUrl, assignOptions] = fetchMock.mock.calls[0] as [string, RequestInit]
+    const [removeUrl, removeOptions] = fetchMock.mock.calls[1] as [string, RequestInit]
+    expect(assignUrl).toContain('/organizations/01KORG/members/01KPERSON/functions')
+    expect(assignOptions.method).toBe('POST')
+    expect(removeUrl).toContain('/members/01KPERSON/functions/01KFUNCTION')
+    expect(removeOptions.method).toBe('DELETE')
   })
 })

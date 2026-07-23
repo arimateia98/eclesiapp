@@ -333,10 +333,15 @@ function initials(name: string): string {
             <button
               class="organization-card__link"
               type="button"
+              :disabled="!organization.current_user_role"
               :data-test="`open-${organization.id}`"
               @click="emit('select', organization)"
             >
-              Abrir organização <span aria-hidden="true">→</span>
+              {{ organization.current_user_role ? 'Abrir organização' : 'Organização pública' }}
+              <span
+                v-if="organization.current_user_role"
+                aria-hidden="true"
+              >→</span>
             </button>
           </article>
         </div>

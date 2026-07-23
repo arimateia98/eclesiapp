@@ -100,7 +100,7 @@ final readonly class CreateOrganization
                 ],
             );
 
-            return $organization;
+            return $organization->setRelation('memberships', collect([$membership]));
         });
     }
 }

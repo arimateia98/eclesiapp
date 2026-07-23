@@ -18,6 +18,7 @@ const organization: Organization = {
   status: 'active',
   visibility: 'private',
   timezone: 'America/Fortaleza',
+  current_user_role: 'owner',
   created_at: '2026-07-22T12:00:00Z',
 }
 

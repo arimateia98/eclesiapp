@@ -34,7 +34,8 @@ final class OrganizationApiTest extends TestCase
 
         $response = $this->postJson('/api/v1/organizations', $this->organizationPayload('comunidade-sao-jose'))
             ->assertCreated()
-            ->assertJsonPath('data.slug', 'comunidade-sao-jose');
+            ->assertJsonPath('data.slug', 'comunidade-sao-jose')
+            ->assertJsonPath('data.current_user_role', 'owner');
 
         $organizationId = (string) $response->json('data.id');
 

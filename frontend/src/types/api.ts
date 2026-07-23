@@ -68,6 +68,7 @@ export interface Organization {
   status: 'active' | 'inactive'
   visibility: OrganizationVisibility
   timezone: string
+  current_user_role: MembershipRole | null
   created_at: string
 }
 
@@ -122,4 +123,43 @@ export interface AcceptAccountInvitationInput {
   password: string
   password_confirmation: string
   device_name: string
+}
+
+export interface MinistryType {
+  id: string
+  organization_id: string
+  name: string
+  slug: string
+  description: string | null
+  active: boolean
+  created_at: string
+}
+
+export interface CreateMinistryTypeInput {
+  name: string
+  description?: string
+}
+
+export interface ServiceFunction {
+  id: string
+  organization_id: string
+  ministry_type_id: string
+  name: string
+  slug: string
+  active: boolean
+  ministry_type: MinistryType
+  created_at: string
+}
+
+export interface CreateServiceFunctionInput {
+  ministry_type_id: string
+  name: string
+}
+
+export interface PersonFunction {
+  organization_id: string
+  person_id: string
+  service_function_id: string
+  service_function: ServiceFunction
+  assigned_at: string
 }
