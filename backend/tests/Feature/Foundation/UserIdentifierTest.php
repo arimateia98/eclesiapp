@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Foundation;
 
-use App\Models\User;
+use App\Modules\Identity\Domain\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -21,7 +21,7 @@ final class UserIdentifierTest extends TestCase
 
         $this->assertDatabaseHas('personal_access_tokens', [
             'tokenable_id' => $userId,
-            'tokenable_type' => User::class,
+            'tokenable_type' => 'user',
         ]);
     }
 }

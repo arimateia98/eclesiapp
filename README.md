@@ -44,6 +44,20 @@ Endereços locais:
 - API: <http://localhost:8080/api/v1/health>;
 - Mailpit: <http://localhost:8025>.
 
+## API disponível
+
+Além do health check, o backend oferece o primeiro recorte de autenticação, pessoas e organizações em `/api/v1`:
+
+- `POST /auth/register` e `POST /auth/login` emitem token Sanctum;
+- `DELETE /auth/token` revoga o token atual;
+- `GET|POST /profile` consulta ou cria o perfil separado da conta;
+- `GET|POST /organizations` lista ou cria organizações;
+- `GET /organizations/{id}` respeita visibilidade e membership;
+- `POST /organizations/{id}/members` cadastra pessoa sem exigir conta;
+- `POST /organizations/{id}/relationships` relaciona organizações com autorização nos dois lados.
+
+O contrato e a matriz de permissões estão em [Identity e Organizations](docs/architecture/identity-and-organizations.md).
+
 As portas do banco e do Redis são publicadas apenas em `127.0.0.1`. Os valores dos arquivos de exemplo são exclusivos para desenvolvimento e devem ser substituídos fora do ambiente local.
 
 ## Qualidade

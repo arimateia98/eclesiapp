@@ -2,7 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
+use App\Modules\Identity\Application\Actions\RegisterUser;
+use App\Modules\Identity\Application\DTOs\RegisterUserData;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -15,11 +16,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        app(RegisterUser::class)->execute(new RegisterUserData(
+            name: 'Test User',
+            email: 'test@example.com',
+            password: 'password',
+            fullName: 'Test User',
+            preferredName: null,
+        ));
     }
 }

@@ -40,3 +40,10 @@ O modelo não deve impedir essas evoluções, mas elas não geram endpoints, tel
 7. endurecimento e piloto.
 
 Cada incremento exige migration reversível, autorização, teste de isolamento, tratamento previsível de erro e atualização documental.
+
+## Progresso
+
+- fundação executável: concluída;
+- Identity e Organizations: primeiro recorte concluído, incluindo autenticação por token, criação e isolamento;
+- vínculo seguro por convite para pessoas pré-cadastradas: pendente;
+- Ministries e etapas posteriores: pendentes.
