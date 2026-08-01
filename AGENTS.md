@@ -1371,12 +1371,14 @@ Esta seção deve ser atualizada ao concluir cada incremento relevante. Ela regi
 - permissões de catálogo para owner/administrator e de atribuição para coordenação;
 - auditoria transacional de criação, atribuição e remoção de funções;
 - painel para catálogo de ministérios e gestão das competências de cada pessoa;
-- documentação de Identity, Organizations, segurança, tenancy e painel administrativo.
+- módulos `Scheduling` e `Missions` com tipos de evento, locais, eventos internos, missões internas e vagas individuais;
+- isolamento organizacional, integridade composta e auditoria transacional para eventos e missões;
+- documentação de Identity, Organizations, Ministries, Scheduling, Missions, segurança, tenancy e painel administrativo.
 
 ### Em andamento
 
-- eventos, locais e tipos de evento;
-- definição do primeiro fluxo de missão interna e suas vagas individuais.
+- designações, conflitos de agenda e publicação de escala;
+- integração do planejamento de eventos e missões no painel administrativo.
 
 ### Pendente para o primeiro MVP
 
@@ -1384,16 +1386,14 @@ Esta seção deve ser atualizada ao concluir cada incremento relevante. Ela regi
 2. autenticação web stateful com cookie `HttpOnly` antes de produção;
 3. aceite ou rejeição bilateral de relações entre organizações;
 4. inativação de membership, transferência de propriedade e histórico completo desses fluxos;
-5. eventos, locais e tipos de evento;
-6. missões internas e vagas individuais;
-7. designações, publicação e histórico de escala;
-8. indisponibilidades e políticas configuráveis de conflito;
-9. validação concorrente de conflitos com bloqueio de pessoa;
-10. exceções autorizadas com justificativa;
-11. notificações e outbox;
-12. telas administrativas para os fluxos internos restantes;
-13. testes PostgreSQL dedicados e testes de concorrência;
-14. piloto controlado, observabilidade e endurecimento de produção.
+5. designações, publicação e histórico de escala;
+6. indisponibilidades e políticas configuráveis de conflito;
+7. validação concorrente de conflitos com bloqueio de pessoa;
+8. exceções autorizadas com justificativa;
+9. notificações e outbox;
+10. telas administrativas para eventos, missões e demais fluxos internos;
+11. testes PostgreSQL dedicados e testes de concorrência;
+12. piloto controlado, observabilidade e endurecimento de produção.
 
 ### Fora do primeiro MVP
 

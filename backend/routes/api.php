@@ -7,9 +7,13 @@ use App\Modules\Identity\Http\Controllers\PersonProfileController;
 use App\Modules\Ministries\Http\Controllers\MinistryTypeController;
 use App\Modules\Ministries\Http\Controllers\PersonFunctionController;
 use App\Modules\Ministries\Http\Controllers\ServiceFunctionController;
+use App\Modules\Missions\Http\Controllers\InternalMissionController;
 use App\Modules\Organizations\Http\Controllers\OrganizationController;
 use App\Modules\Organizations\Http\Controllers\OrganizationMemberController;
 use App\Modules\Organizations\Http\Controllers\OrganizationRelationshipController;
+use App\Modules\Scheduling\Http\Controllers\EventController;
+use App\Modules\Scheduling\Http\Controllers\EventTypeController;
+use App\Modules\Scheduling\Http\Controllers\LocationController;
 use App\Shared\Http\Controllers\HealthController;
 use Illuminate\Support\Facades\Route;
 
@@ -43,6 +47,28 @@ Route::prefix('v1')->group(function (): void {
             ->name('api.v1.organizations.service-functions.index');
         Route::post('/organizations/{organization}/service-functions', [ServiceFunctionController::class, 'store'])
             ->name('api.v1.organizations.service-functions.store');
+        Route::get('/organizations/{organization}/event-types', [EventTypeController::class, 'index'])
+            ->name('api.v1.organizations.event-types.index');
+        Route::post('/organizations/{organization}/event-types', [EventTypeController::class, 'store'])
+            ->name('api.v1.organizations.event-types.store');
+        Route::get('/organizations/{organization}/locations', [LocationController::class, 'index'])
+            ->name('api.v1.organizations.locations.index');
+        Route::post('/organizations/{organization}/locations', [LocationController::class, 'store'])
+            ->name('api.v1.organizations.locations.store');
+        Route::get('/organizations/{organization}/events', [EventController::class, 'index'])
+            ->name('api.v1.organizations.events.index');
+        Route::post('/organizations/{organization}/events', [EventController::class, 'store'])
+            ->name('api.v1.organizations.events.store');
+        Route::get('/organizations/{organization}/events/{event}', [EventController::class, 'show'])
+            ->name('api.v1.organizations.events.show');
+        Route::get(
+            '/organizations/{organization}/events/{event}/missions',
+            [InternalMissionController::class, 'index'],
+        )->name('api.v1.organizations.events.missions.index');
+        Route::post(
+            '/organizations/{organization}/events/{event}/missions',
+            [InternalMissionController::class, 'store'],
+        )->name('api.v1.organizations.events.missions.store');
         Route::get(
             '/organizations/{organization}/members/{person}/functions',
             [PersonFunctionController::class, 'index'],

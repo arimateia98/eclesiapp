@@ -36,6 +36,7 @@ As setas representam dependências permitidas. Comunicação inversa deve ocorre
 
 O recorte implementado de identidade, organizações, papéis e relações está detalhado em [Identity e Organizations](identity-and-organizations.md).
 O catálogo de ministérios, funções de serviço e capacidades pessoais está detalhado em [Ministries](ministries.md).
+O planejamento de eventos, missões internas e vagas individuais está detalhado em [Scheduling e Missions internas](scheduling-and-missions.md).
 O fluxo web e o tratamento atual de sessão estão detalhados em [Painel administrativo](frontend-admin.md).
 
 ## Regras de dependência

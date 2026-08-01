@@ -13,4 +13,8 @@ enum AuditAction: string
     case ServiceFunctionCreated = 'ministries.service_function_created';
     case PersonFunctionAssigned = 'ministries.person_function_assigned';
     case PersonFunctionRemoved = 'ministries.person_function_removed';
+    case EventTypeCreated = 'scheduling.event_type_created';
+    case LocationCreated = 'scheduling.location_created';
+    case EventCreated = 'scheduling.event_created';
+    case MissionCreated = 'missions.mission_created';
 }

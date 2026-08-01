@@ -47,4 +47,5 @@ Cada incremento exige migration reversível, autorização, teste de isolamento,
 - Identity e Organizations: primeiro recorte concluído, incluindo autenticação por token, criação e isolamento;
 - vínculo seguro por convite para pessoas pré-cadastradas: concluído;
 - Ministries: concluído no recorte de catálogo, funções e competências pessoais;
-- Events e Missions internas e etapas posteriores: pendentes.
+- Events e Missions internas: concluídos no recorte de catálogo, agenda privada em rascunho e vagas individuais;
+- Assignments, conflitos concorrentes e etapas posteriores: pendentes.
