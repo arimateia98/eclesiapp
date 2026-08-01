@@ -30,6 +30,11 @@ final class AssignmentApiTest extends TestCase
             '2026-08-10T20:00:00-03:00',
         );
 
+        $this->getJson($this->eligibleMembersUrl($organizationId, $eventId, $missionId, $slotId))
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.person.id', $personId);
+
         $assignmentId = (string) $this->postJson(
             $this->assignmentsUrl($organizationId, $eventId, $missionId),
             ['mission_slot_id' => $slotId, 'person_id' => $personId],
@@ -63,6 +68,15 @@ final class AssignmentApiTest extends TestCase
             '2026-08-11T19:00:00-03:00', '2026-08-11T20:00:00-03:00',
         );
         $url = $this->assignmentsUrl($organizationId, $eventId, $missionId);
+
+        $this->getJson($this->eligibleMembersUrl($organizationId, $eventId, $missionId, $slotId))
+            ->assertOk()
+            ->assertJsonCount(2, 'data')
+            ->assertJsonMissing(['id' => $unqualifiedId]);
+        $otherOrganizationId = $this->createOrganization('outra-organizacao-elegibilidade');
+        $this->getJson($this->eligibleMembersUrl($otherOrganizationId, $eventId, $missionId, $slotId))
+            ->assertUnprocessable()
+            ->assertJsonPath('code', 'scheduling.mission_slot_unavailable');
 
         $this->postJson($url, ['mission_slot_id' => $slotId, 'person_id' => $unqualifiedId])
             ->assertUnprocessable()->assertJsonPath('code', 'scheduling.person_not_qualified');
@@ -170,5 +184,10 @@ final class AssignmentApiTest extends TestCase
     private function assignmentsUrl(string $organizationId, string $eventId, string $missionId): string
     {
         return "/api/v1/organizations/{$organizationId}/events/{$eventId}/missions/{$missionId}/assignments";
+    }
+
+    private function eligibleMembersUrl(string $organizationId, string $eventId, string $missionId, string $slotId): string
+    {
+        return "/api/v1/organizations/{$organizationId}/events/{$eventId}/missions/{$missionId}/slots/{$slotId}/eligible-members";
     }
 }

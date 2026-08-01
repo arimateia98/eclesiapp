@@ -1216,6 +1216,50 @@ button:disabled {
   padding-left: 1.1rem;
 }
 
+.mission-card > ul {
+  display: grid;
+  grid-column: 1 / -1;
+  gap: 0.7rem;
+  padding: 0;
+  list-style: none;
+}
+
+.mission-card > ul > li {
+  display: grid;
+  gap: 0.55rem;
+  padding: 0.7rem;
+  border-radius: 0.65rem;
+  background: rgb(8 24 17 / 35%);
+}
+
+.mission-card > ul > li > div,
+.assignment-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.assignment-list {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0 !important;
+  list-style: none;
+}
+
+.assignment-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 0.65rem;
+}
+
+@media (max-width: 560px) {
+  .assignment-form {
+    grid-template-columns: 1fr;
+  }
+}
+
 .mission-workspace .catalog-empty {
   border-color: rgb(255 255 255 / 17%);
   color: #c6d6cc;

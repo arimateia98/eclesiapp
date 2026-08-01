@@ -19,10 +19,12 @@ O painel Vue oferece um fluxo navegável para:
 - planejar eventos privados em rascunho no timezone da organização;
 - consultar eventos e suas missões internas;
 - criar missões com uma ou mais vagas individuais por função de serviço;
+- abrir a escala de cada missão e acompanhar o preenchimento das vagas;
+- consultar pessoas qualificadas por vaga e criar designações com retorno explícito de conflitos;
 - enviar um convite de acesso para a pessoa cadastrada;
 - aceitar o convite por link e vincular uma nova conta ao perfil existente.
 
-O fluxo usa composição de telas em `App.vue`, sem roteador ou estado global. A área da organização alterna localmente entre agenda e pessoas; evento selecionado e formulários não são persistidos na URL. A URL só carrega o token do convite, removido com `history.replaceState` após o aceite ou cancelamento. Um roteador deve ser introduzido junto às designações e à consulta persistente da escala, quando evento, missão ou planejamento precisarem de link direto e navegação pelo histórico.
+O fluxo usa composição de telas em `App.vue`, sem roteador ou estado global. A área da organização alterna localmente entre agenda e pessoas; evento, missão e vaga selecionados não são persistidos na URL. A URL só carrega o token do convite, removido com `history.replaceState` após o aceite ou cancelamento. Um roteador deve ser introduzido junto à publicação e à consulta persistente da escala, quando evento, missão ou planejamento precisarem de link direto e navegação pelo histórico.
 
 ## Organização do código
 
@@ -33,7 +35,7 @@ O fluxo usa composição de telas em `App.vue`, sem roteador ou estado global. A
 - `src/components/OrganizationDashboard.vue`: listagem e criação de organizações;
 - `src/components/OrganizationWorkspace.vue`: membros, cadastro de pessoa e convite;
 - `src/components/MinistryCapabilitiesPanel.vue`: catálogo e competências pessoais;
-- `src/components/SchedulingPanel.vue`: catálogos de agenda, eventos, missões e vagas individuais;
+- `src/components/SchedulingPanel.vue`: catálogos de agenda, eventos, missões, vagas e designações;
 - `src/services/dateTime.ts`: interpretação do horário de parede no timezone da organização e conversão para UTC;
 - `src/App.vue`: coordenação de sessão, navegação local, carregamento e expiração.
 
@@ -53,6 +55,8 @@ Antes de produção, o painel web deve migrar para autenticação stateful do Sa
 - loading, vazio, sucesso, falha de API e sessão expirada possuem estados explícitos;
 - formulários preservam os dados quando a API rejeita a operação;
 - ações de catálogo e planejamento são apresentadas conforme o papel atual, sem substituir a autorização do backend;
+- a seleção de uma vaga consulta somente memberships ativos com a competência exigida;
+- conflitos de horário e capacidade retornados pela API preservam a seleção para correção;
 - horários são exibidos no timezone da organização e enviados como instantes UTC;
 - ações de convite sem e-mail válido permanecem indisponíveis;
 - layout é responsivo a partir de 320 px;

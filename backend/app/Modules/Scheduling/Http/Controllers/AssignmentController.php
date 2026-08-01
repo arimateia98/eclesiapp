@@ -5,9 +5,11 @@ namespace App\Modules\Scheduling\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Modules\Identity\Domain\Models\User;
 use App\Modules\Organizations\Domain\Models\Organization;
+use App\Modules\Organizations\Http\Resources\OrganizationMembershipResource;
 use App\Modules\Scheduling\Application\Actions\CreateAssignment;
 use App\Modules\Scheduling\Application\DTOs\CreateAssignmentData;
 use App\Modules\Scheduling\Application\Queries\ListAssignments;
+use App\Modules\Scheduling\Application\Queries\ListEligibleMembers;
 use App\Modules\Scheduling\Http\Requests\ListSchedulingResourcesRequest;
 use App\Modules\Scheduling\Http\Requests\StoreAssignmentRequest;
 use App\Modules\Scheduling\Http\Resources\AssignmentResource;
@@ -19,12 +21,31 @@ final class AssignmentController extends Controller
 {
     public function index(ListSchedulingResourcesRequest $request, Organization $organization, string $event, string $mission, ListAssignments $query): AnonymousResourceCollection
     {
-        Gate::authorize('view', $organization);
+        Gate::authorize('manageMembers', $organization);
 
         return AssignmentResource::collection($query->execute(
             $organization,
             $event,
             $mission,
+            (int) $request->validated('per_page', 100),
+        ));
+    }
+
+    public function eligibleMembers(
+        ListSchedulingResourcesRequest $request,
+        Organization $organization,
+        string $event,
+        string $mission,
+        string $slot,
+        ListEligibleMembers $query,
+    ): AnonymousResourceCollection {
+        Gate::authorize('manageMembers', $organization);
+
+        return OrganizationMembershipResource::collection($query->execute(
+            $organization,
+            $event,
+            $mission,
+            $slot,
             (int) $request->validated('per_page', 100),
         ));
     }

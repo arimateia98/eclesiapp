@@ -3,6 +3,7 @@ import type {
   ApiErrorPayload,
   AcceptAccountInvitationInput,
   AccountInvitation,
+  Assignment,
   AddOrganizationMemberInput,
   AuthResponse,
   AuthSession,
@@ -11,6 +12,7 @@ import type {
   CreateEventInput,
   CreateEventTypeInput,
   CreateInternalMissionInput,
+  CreateAssignmentInput,
   CreateLocationInput,
   CreateServiceFunctionInput,
   HealthData,
@@ -409,6 +411,53 @@ export async function createInternalMission(
 ): Promise<Mission> {
   const payload = await request<ApiEnvelope<Mission>>(
     `/organizations/${organizationId}/events/${eventId}/missions`,
+    { method: 'POST', body: JSON.stringify(input) },
+    token,
+  )
+
+  return payload.data
+}
+
+export async function fetchAssignments(
+  token: string,
+  organizationId: string,
+  eventId: string,
+  missionId: string,
+): Promise<Assignment[]> {
+  const payload = await request<ApiEnvelope<Assignment[]>>(
+    `/organizations/${organizationId}/events/${eventId}/missions/${missionId}/assignments?per_page=100`,
+    {},
+    token,
+  )
+
+  return payload.data
+}
+
+export async function fetchEligibleMembers(
+  token: string,
+  organizationId: string,
+  eventId: string,
+  missionId: string,
+  slotId: string,
+): Promise<OrganizationMembership[]> {
+  const payload = await request<ApiEnvelope<OrganizationMembership[]>>(
+    `/organizations/${organizationId}/events/${eventId}/missions/${missionId}/slots/${slotId}/eligible-members?per_page=100`,
+    {},
+    token,
+  )
+
+  return payload.data
+}
+
+export async function createAssignment(
+  token: string,
+  organizationId: string,
+  eventId: string,
+  missionId: string,
+  input: CreateAssignmentInput,
+): Promise<Assignment> {
+  const payload = await request<ApiEnvelope<Assignment>>(
+    `/organizations/${organizationId}/events/${eventId}/missions/${missionId}/assignments`,
     { method: 'POST', body: JSON.stringify(input) },
     token,
   )

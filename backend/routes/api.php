@@ -74,6 +74,8 @@ Route::prefix('v1')->group(function (): void {
             ->name('api.v1.organizations.events.missions.assignments.index');
         Route::post('/organizations/{organization}/events/{event}/missions/{mission}/assignments', [AssignmentController::class, 'store'])
             ->name('api.v1.organizations.events.missions.assignments.store');
+        Route::get('/organizations/{organization}/events/{event}/missions/{mission}/slots/{slot}/eligible-members', [AssignmentController::class, 'eligibleMembers'])
+            ->name('api.v1.organizations.events.missions.slots.eligible-members.index');
         Route::get(
             '/organizations/{organization}/members/{person}/functions',
             [PersonFunctionController::class, 'index'],

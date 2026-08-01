@@ -9,6 +9,7 @@ import type {
   Organization,
   ScheduledEvent,
   ServiceFunction,
+  OrganizationMembership,
 } from '../types/api'
 
 const organization: Organization = {
@@ -83,6 +84,24 @@ const event: ScheduledEvent = {
   created_at: '2026-08-01T12:00:00Z',
 }
 
+const eligibleMember: OrganizationMembership = {
+  id: '01KMEMBER',
+  organization_id: organization.id,
+  role: 'member',
+  status: 'active',
+  joined_at: '2026-08-01T12:00:00Z',
+  person: {
+    id: '01KPERSON',
+    full_name: 'Maria Leitora',
+    preferred_name: 'Maria',
+    email: null,
+    phone: null,
+    status: 'active',
+    has_user: false,
+    created_at: '2026-08-01T12:00:00Z',
+  },
+}
+
 function mountPanel(options: Partial<InstanceType<typeof SchedulingPanel>['$props']> = {}) {
   return mount(SchedulingPanel, {
     props: {
@@ -91,11 +110,18 @@ function mountPanel(options: Partial<InstanceType<typeof SchedulingPanel>['$prop
       locations: [location],
       events: [],
       missions: [],
+      assignments: [],
+      eligibleMembers: [],
       ministryTypes: [ministryType],
       serviceFunctions: [serviceFunction],
       selectedEventId: null,
+      selectedMissionId: null,
+      selectedSlotId: null,
       loading: false,
       loadingMissions: false,
+      loadingAssignments: false,
+      loadingEligibleMembers: false,
+      creatingAssignment: false,
       busy: null,
       error: null,
       ...options,
@@ -160,6 +186,52 @@ describe('SchedulingPanel', () => {
 
     expect(wrapper.find('[data-test="toggle-scheduling-catalog"]').exists()).toBe(false)
     expect(wrapper.find('[data-test="toggle-event-form"]').exists()).toBe(false)
+  })
+
+  it('permite designar somente uma pessoa qualificada para a vaga selecionada', async () => {
+    const mission = {
+      id: '01KMISSION',
+      event_id: event.id,
+      publisher_organization_id: organization.id,
+      target_organization_id: organization.id,
+      ministry_type_id: ministryType.id,
+      ministry_type: ministryType,
+      title: 'Equipe de leitores',
+      description: null,
+      visibility: 'private' as const,
+      participation_policy: 'coordinator_assignment' as const,
+      status: 'draft' as const,
+      response_deadline: null,
+      slots: [{
+        id: '01KSLOT',
+        mission_id: '01KMISSION',
+        slot_type: 'person' as const,
+        service_function_id: serviceFunction.id,
+        service_function: serviceFunction,
+        quantity: 1,
+        required: true,
+        created_at: '2026-08-01T12:00:00Z',
+      }],
+      created_at: '2026-08-01T12:00:00Z',
+    }
+    const wrapper = mountPanel({
+      events: [event],
+      selectedEventId: event.id,
+      missions: [mission],
+      selectedMissionId: mission.id,
+      selectedSlotId: mission.slots[0].id,
+      eligibleMembers: [eligibleMember],
+    })
+
+    const form = wrapper.get(`[data-test="assignment-form-${mission.slots[0].id}"]`)
+    await form.get('select').setValue(eligibleMember.person.id)
+    await form.trigger('submit')
+
+    expect(wrapper.emitted('createAssignment')?.[0]).toEqual([
+      mission.id,
+      mission.slots[0].id,
+      eligibleMember.person.id,
+    ])
   })
 
   it('preserva o formulário quando a API rejeita o rascunho', async () => {

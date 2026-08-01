@@ -2,6 +2,7 @@
 import { computed, reactive, ref, watch } from 'vue'
 import { localDateTimeToUtcIso } from '../services/dateTime'
 import type {
+  Assignment,
   CreateEventInput,
   CreateEventTypeInput,
   CreateInternalMissionInput,
@@ -12,6 +13,7 @@ import type {
   MinistryType,
   Mission,
   Organization,
+  OrganizationMembership,
   ScheduledEvent,
   ServiceFunction,
 } from '../types/api'
@@ -22,11 +24,18 @@ const props = defineProps<{
   locations: Location[]
   events: ScheduledEvent[]
   missions: Mission[]
+  assignments: Assignment[]
+  eligibleMembers: OrganizationMembership[]
   ministryTypes: MinistryType[]
   serviceFunctions: ServiceFunction[]
   selectedEventId: string | null
+  selectedMissionId: string | null
+  selectedSlotId: string | null
   loading: boolean
   loadingMissions: boolean
+  loadingAssignments: boolean
+  loadingEligibleMembers: boolean
+  creatingAssignment: boolean
   busy: 'event-type' | 'location' | 'event' | 'mission' | null
   error: string | null
 }>()
@@ -38,6 +47,9 @@ const emit = defineEmits<{
   createLocation: [input: CreateLocationInput]
   createEvent: [input: CreateEventInput]
   createMission: [eventId: string, input: CreateInternalMissionInput]
+  selectMission: [missionId: string]
+  selectAssignmentSlot: [missionId: string, slotId: string]
+  createAssignment: [missionId: string, slotId: string, personId: string]
 }>()
 
 const showCatalog = ref(false)
@@ -64,6 +76,7 @@ const missionForm = reactive({
   description: '',
   slots: [{ service_function_id: '', quantity: 1, required: true }],
 })
+const assignmentPersonId = ref('')
 
 const catalogRoles: MembershipRole[] = ['owner', 'administrator']
 const planningRoles: MembershipRole[] = ['owner', 'administrator', 'coordinator']
@@ -92,6 +105,13 @@ watch(
   () => missionForm.ministry_type_id,
   () => {
     missionForm.slots = [{ service_function_id: '', quantity: 1, required: true }]
+  },
+)
+
+watch(
+  () => props.selectedSlotId,
+  () => {
+    assignmentPersonId.value = ''
   },
 )
 
@@ -170,6 +190,27 @@ function formatDate(value: string): string {
     timeStyle: 'short',
     timeZone: props.organization.timezone,
   }).format(new Date(value))
+}
+
+function assignmentsForSlot(slotId: string): Assignment[] {
+  return props.assignments.filter(
+    (assignment) => assignment.mission_slot_id === slotId
+      && ['pending', 'confirmed'].includes(assignment.status),
+  )
+}
+
+function availableCandidates(): OrganizationMembership[] {
+  const assignedPersonIds = new Set(props.assignments.map((assignment) => assignment.person_id))
+
+  return props.eligibleMembers.filter((membership) => !assignedPersonIds.has(membership.person.id))
+}
+
+function submitAssignment(missionId: string): void {
+  if (!props.selectedSlotId || !assignmentPersonId.value) {
+    return
+  }
+
+  emit('createAssignment', missionId, props.selectedSlotId, assignmentPersonId.value)
 }
 </script>
 
@@ -563,14 +604,88 @@ function formatDate(value: string): string {
                 <span>{{ mission.ministry_type.name }}</span>
                 <strong>{{ mission.title }}</strong>
               </div>
+              <button
+                v-if="canPlan"
+                class="text-button"
+                type="button"
+                :data-test="`manage-assignments-${mission.id}`"
+                @click="emit('selectMission', mission.id)"
+              >
+                {{ selectedMissionId === mission.id ? 'Fechar escala' : 'Montar escala' }}
+              </button>
               <ul>
                 <li
                   v-for="slot in mission.slots"
                   :key="slot.id"
                 >
-                  {{ slot.quantity }}× {{ slot.service_function?.name }}
+                  <div>
+                    <strong>{{ slot.service_function?.name }}</strong>
+                    <span>{{ assignmentsForSlot(slot.id).length }}/{{ slot.quantity }} preenchida(s)</span>
+                  </div>
+                  <ul
+                    v-if="selectedMissionId === mission.id && assignmentsForSlot(slot.id).length"
+                    class="assignment-list"
+                  >
+                    <li
+                      v-for="assignment in assignmentsForSlot(slot.id)"
+                      :key="assignment.id"
+                    >
+                      {{ assignment.person.preferred_name || assignment.person.full_name }}
+                      <span class="role-pill">Pendente</span>
+                    </li>
+                  </ul>
+                  <button
+                    v-if="canPlan && selectedMissionId === mission.id && assignmentsForSlot(slot.id).length < slot.quantity"
+                    class="secondary-button"
+                    type="button"
+                    :data-test="`select-slot-${slot.id}`"
+                    @click="emit('selectAssignmentSlot', mission.id, slot.id)"
+                  >
+                    Designar pessoa
+                  </button>
+                  <form
+                    v-if="selectedMissionId === mission.id && selectedSlotId === slot.id"
+                    class="assignment-form"
+                    :data-test="`assignment-form-${slot.id}`"
+                    @submit.prevent="submitAssignment(mission.id)"
+                  >
+                    <span v-if="loadingEligibleMembers">Buscando pessoas qualificadas…</span>
+                    <template v-else-if="availableCandidates().length">
+                      <label class="field">
+                        <span>Pessoa qualificada</span>
+                        <select
+                          v-model="assignmentPersonId"
+                          required
+                        >
+                          <option
+                            value=""
+                            disabled
+                          >Selecione</option>
+                          <option
+                            v-for="membership in availableCandidates()"
+                            :key="membership.person.id"
+                            :value="membership.person.id"
+                          >
+                            {{ membership.person.preferred_name || membership.person.full_name }}
+                          </option>
+                        </select>
+                      </label>
+                      <button
+                        class="primary-button primary-button--compact"
+                        type="submit"
+                        :disabled="creatingAssignment"
+                      >
+                        {{ creatingAssignment ? 'Designando…' : 'Confirmar designação' }}
+                      </button>
+                    </template>
+                    <span v-else>Nenhuma outra pessoa qualificada disponível.</span>
+                  </form>
                 </li>
               </ul>
+              <span
+                v-if="selectedMissionId === mission.id && loadingAssignments"
+                class="members-loading"
+              >Carregando escala…</span>
             </article>
           </div>
           <div

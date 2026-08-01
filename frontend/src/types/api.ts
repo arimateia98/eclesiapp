@@ -258,6 +258,24 @@ export interface Mission {
   created_at: string
 }
 
+export type AssignmentStatus = 'pending' | 'confirmed' | 'declined' | 'cancelled' | 'replaced'
+
+export interface Assignment {
+  id: string
+  mission_id: string
+  mission_slot_id: string
+  person_id: string
+  person: Person
+  mission_slot: MissionSlot
+  status: AssignmentStatus
+  assigned_at: string
+}
+
+export interface CreateAssignmentInput {
+  mission_slot_id: string
+  person_id: string
+}
+
 export interface CreateInternalMissionInput {
   ministry_type_id: string
   title: string

@@ -1375,13 +1375,14 @@ Esta seção deve ser atualizada ao concluir cada incremento relevante. Ela regi
 - prevenção global de sobreposição de horário, com bloqueio pessimista da pessoa, capacidade da vaga, qualificação e teste dedicado em PostgreSQL;
 - isolamento organizacional, integridade composta e auditoria transacional para eventos e missões;
 - painel administrativo para catálogos de agenda, eventos privados em rascunho, missões internas e múltiplas vagas individuais;
+- painel administrativo para montar a escala por vaga, consultar pessoas qualificadas e criar designações;
 - conversão explícita entre horário local da organização e UTC, com testes de deslocamento sazonal;
 - documentação de Identity, Organizations, Ministries, Scheduling, Missions, segurança, tenancy e painel administrativo.
 
 ### Em andamento
 
 - indisponibilidades, limite diário configurável, exceções e publicação de escala;
-- integração das designações no painel administrativo.
+- modelagem de indisponibilidades e políticas configuráveis de conflito.
 
 ### Pendente para o primeiro MVP
 
@@ -1393,7 +1394,7 @@ Esta seção deve ser atualizada ao concluir cada incremento relevante. Ela regi
 6. indisponibilidades e políticas configuráveis de conflito;
 7. exceções autorizadas com justificativa;
 8. notificações e outbox;
-9. telas administrativas para designações e demais fluxos internos;
+9. telas administrativas para indisponibilidades, publicação e demais fluxos internos;
 10. ampliar a cobertura PostgreSQL e os cenários de concorrência;
 11. piloto controlado, observabilidade e endurecimento de produção.
 

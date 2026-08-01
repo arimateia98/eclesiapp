@@ -50,4 +50,5 @@ Cada incremento exige migration reversível, autorização, teste de isolamento,
 - Events e Missions internas: concluídos no recorte de catálogo, agenda privada em rascunho e vagas individuais;
 - painel de Events e Missions internas: concluído com timezone organizacional, múltiplas vagas e permissões por papel;
 - Assignments e conflito de sobreposição: concluídos no backend, com qualificação, capacidade da vaga, isolamento multi-organização, bloqueio pessimista e teste PostgreSQL dedicado;
-- limite diário, indisponibilidades, exceções, publicação e interface de designações: pendentes.
+- interface de designações: concluída com preenchimento por vaga, consulta eficiente de pessoas qualificadas e tratamento dos erros de domínio;
+- limite diário, indisponibilidades, exceções e publicação: pendentes.

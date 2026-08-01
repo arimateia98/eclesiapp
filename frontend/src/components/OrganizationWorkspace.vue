@@ -4,6 +4,7 @@ import MinistryCapabilitiesPanel from './MinistryCapabilitiesPanel.vue'
 import SchedulingPanel from './SchedulingPanel.vue'
 import type {
   AddOrganizationMemberInput,
+  Assignment,
   AuthSession,
   CreateMinistryTypeInput,
   CreateServiceFunctionInput,
@@ -34,7 +35,11 @@ const props = defineProps<{
   locations: Location[]
   events: ScheduledEvent[]
   missions: Mission[]
+  assignments: Assignment[]
+  eligibleMembers: OrganizationMembership[]
   selectedEventId: string | null
+  selectedMissionId: string | null
+  selectedSlotId: string | null
   selectedPersonId: string | null
   loading: boolean
   loadingCatalog: boolean
@@ -42,6 +47,9 @@ const props = defineProps<{
   updatingFunctionId: string | null
   loadingSchedule: boolean
   loadingMissions: boolean
+  loadingAssignments: boolean
+  loadingEligibleMembers: boolean
+  creatingAssignment: boolean
   scheduleBusy: 'event-type' | 'location' | 'event' | 'mission' | null
   adding: boolean
   invitingPersonId: string | null
@@ -66,6 +74,9 @@ const emit = defineEmits<{
   createLocation: [input: CreateLocationInput]
   createEvent: [input: CreateEventInput]
   createMission: [eventId: string, input: CreateInternalMissionInput]
+  selectMission: [missionId: string]
+  selectAssignmentSlot: [missionId: string, slotId: string]
+  createAssignment: [missionId: string, slotId: string, personId: string]
 }>()
 
 const showMemberForm = ref(false)
@@ -227,8 +238,15 @@ function submitMember(): void {
         :ministry-types="ministryTypes"
         :service-functions="serviceFunctions"
         :selected-event-id="selectedEventId"
+        :selected-mission-id="selectedMissionId"
+        :selected-slot-id="selectedSlotId"
+        :assignments="assignments"
+        :eligible-members="eligibleMembers"
         :loading="loadingSchedule"
         :loading-missions="loadingMissions"
+        :loading-assignments="loadingAssignments"
+        :loading-eligible-members="loadingEligibleMembers"
+        :creating-assignment="creatingAssignment"
         :busy="scheduleBusy"
         :error="error"
         @refresh="emit('refreshSchedule')"
@@ -237,6 +255,9 @@ function submitMember(): void {
         @create-location="emit('createLocation', $event)"
         @create-event="emit('createEvent', $event)"
         @create-mission="(eventId, input) => emit('createMission', eventId, input)"
+        @select-mission="emit('selectMission', $event)"
+        @select-assignment-slot="(missionId, slotId) => emit('selectAssignmentSlot', missionId, slotId)"
+        @create-assignment="(missionId, slotId, personId) => emit('createAssignment', missionId, slotId, personId)"
       />
 
       <MinistryCapabilitiesPanel

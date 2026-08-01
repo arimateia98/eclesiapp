@@ -8,6 +8,7 @@ import {
   addOrganizationMember,
   ApiError,
   assignPersonFunction,
+  createAssignment,
   createMinistryType,
   createOrganization,
   createServiceFunction,
@@ -16,6 +17,8 @@ import {
   createInternalMission,
   createLocation,
   fetchEvents,
+  fetchAssignments,
+  fetchEligibleMembers,
   fetchEventTypes,
   fetchHealth,
   fetchInternalMissions,
@@ -32,6 +35,7 @@ import {
 import { clearSession, persistSession, restoreSession } from './services/session'
 import type {
   AddOrganizationMemberInput,
+  Assignment,
   AuthSession,
   CreateMinistryTypeInput,
   CreateEventInput,
@@ -64,6 +68,10 @@ const locations = ref<Location[]>([])
 const events = ref<ScheduledEvent[]>([])
 const missions = ref<Mission[]>([])
 const selectedEventId = ref<string | null>(null)
+const selectedMissionId = ref<string | null>(null)
+const selectedSlotId = ref<string | null>(null)
+const assignments = ref<Assignment[]>([])
+const eligibleMembers = ref<OrganizationMembership[]>([])
 const invitationToken = ref(new window.URLSearchParams(window.location.search).get('invitation'))
 const apiOnline = ref(false)
 const loadingOrganizations = ref(false)
@@ -76,6 +84,9 @@ const catalogBusy = ref<'type' | 'function' | null>(null)
 const updatingFunctionId = ref<string | null>(null)
 const loadingSchedule = ref(false)
 const loadingMissions = ref(false)
+const loadingAssignments = ref(false)
+const loadingEligibleMembers = ref(false)
+const creatingAssignment = ref(false)
 const scheduleBusy = ref<'event-type' | 'location' | 'event' | 'mission' | null>(null)
 const invitingPersonId = ref<string | null>(null)
 const dashboardError = ref<string | null>(null)
@@ -219,9 +230,20 @@ function resetSchedule(): void {
   events.value = []
   missions.value = []
   selectedEventId.value = null
+  resetAssignments()
   loadingSchedule.value = false
   loadingMissions.value = false
   scheduleBusy.value = null
+}
+
+function resetAssignments(): void {
+  selectedMissionId.value = null
+  selectedSlotId.value = null
+  assignments.value = []
+  eligibleMembers.value = []
+  loadingAssignments.value = false
+  loadingEligibleMembers.value = false
+  creatingAssignment.value = false
 }
 
 async function loadSchedule(): Promise<void> {
@@ -245,6 +267,7 @@ async function loadSchedule(): Promise<void> {
     if (selectedEventId.value && !loadedEvents.some((event) => event.id === selectedEventId.value)) {
       selectedEventId.value = null
       missions.value = []
+      resetAssignments()
     }
   } catch (error) {
     if (!handleExpiredSession(error)) {
@@ -262,6 +285,7 @@ async function handleSelectEvent(eventId: string): Promise<void> {
 
   selectedEventId.value = eventId
   missions.value = []
+  resetAssignments()
   loadingMissions.value = true
   workspaceError.value = null
 
@@ -277,6 +301,98 @@ async function handleSelectEvent(eventId: string): Promise<void> {
     }
   } finally {
     loadingMissions.value = false
+  }
+}
+
+async function handleSelectMission(missionId: string): Promise<void> {
+  if (!session.value || !selectedOrganization.value || !selectedEventId.value) {
+    return
+  }
+
+  if (selectedMissionId.value === missionId) {
+    resetAssignments()
+    return
+  }
+
+  selectedMissionId.value = missionId
+  selectedSlotId.value = null
+  eligibleMembers.value = []
+  assignments.value = []
+  loadingAssignments.value = true
+  workspaceError.value = null
+
+  try {
+    assignments.value = await fetchAssignments(
+      session.value.token,
+      selectedOrganization.value.id,
+      selectedEventId.value,
+      missionId,
+    )
+  } catch (error) {
+    if (!handleExpiredSession(error)) {
+      workspaceError.value = messageFrom(error)
+    }
+  } finally {
+    loadingAssignments.value = false
+  }
+}
+
+async function handleSelectAssignmentSlot(missionId: string, slotId: string): Promise<void> {
+  if (!session.value || !selectedOrganization.value || !selectedEventId.value) {
+    return
+  }
+
+  selectedMissionId.value = missionId
+  selectedSlotId.value = slotId
+  eligibleMembers.value = []
+  loadingEligibleMembers.value = true
+  workspaceError.value = null
+
+  try {
+    eligibleMembers.value = await fetchEligibleMembers(
+      session.value.token,
+      selectedOrganization.value.id,
+      selectedEventId.value,
+      missionId,
+      slotId,
+    )
+  } catch (error) {
+    if (!handleExpiredSession(error)) {
+      workspaceError.value = messageFrom(error)
+    }
+  } finally {
+    loadingEligibleMembers.value = false
+  }
+}
+
+async function handleCreateAssignment(missionId: string, slotId: string, personId: string): Promise<void> {
+  if (!session.value || !selectedOrganization.value || !selectedEventId.value) {
+    return
+  }
+
+  creatingAssignment.value = true
+  workspaceError.value = null
+  workspaceNotice.value = null
+
+  try {
+    const assignment = await createAssignment(
+      session.value.token,
+      selectedOrganization.value.id,
+      selectedEventId.value,
+      missionId,
+      { mission_slot_id: slotId, person_id: personId },
+    )
+    assignments.value = [...assignments.value, assignment]
+    eligibleMembers.value = eligibleMembers.value.filter(
+      (membership) => membership.person.id !== personId,
+    )
+    workspaceNotice.value = `${assignment.person.preferred_name || assignment.person.full_name} foi designado(a).`
+  } catch (error) {
+    if (!handleExpiredSession(error)) {
+      workspaceError.value = messageFrom(error)
+    }
+  } finally {
+    creatingAssignment.value = false
   }
 }
 
@@ -344,6 +460,7 @@ async function handleCreateEvent(input: CreateEventInput): Promise<void> {
     )
     selectedEventId.value = event.id
     missions.value = []
+    resetAssignments()
     workspaceNotice.value = `${event.title} foi criado como rascunho privado.`
   } catch (error) {
     if (!handleExpiredSession(error)) {
@@ -688,12 +805,19 @@ async function handleLogout(): Promise<void> {
     :events="events"
     :missions="missions"
     :selected-event-id="selectedEventId"
+    :selected-mission-id="selectedMissionId"
+    :selected-slot-id="selectedSlotId"
+    :assignments="assignments"
+    :eligible-members="eligibleMembers"
     :loading="loadingMembers"
     :loading-catalog="loadingCatalog || loadingCapabilities"
     :catalog-busy="catalogBusy"
     :updating-function-id="updatingFunctionId"
     :loading-schedule="loadingSchedule"
     :loading-missions="loadingMissions"
+    :loading-assignments="loadingAssignments"
+    :loading-eligible-members="loadingEligibleMembers"
+    :creating-assignment="creatingAssignment"
     :schedule-busy="scheduleBusy"
     :adding="addingMember"
     :inviting-person-id="invitingPersonId"
@@ -715,6 +839,9 @@ async function handleLogout(): Promise<void> {
     @create-location="handleCreateLocation"
     @create-event="handleCreateEvent"
     @create-mission="handleCreateMission"
+    @select-mission="handleSelectMission"
+    @select-assignment-slot="handleSelectAssignmentSlot"
+    @create-assignment="handleCreateAssignment"
   />
 
   <OrganizationDashboard

@@ -10,7 +10,7 @@ O recorte atual de `Scheduling` e `Missions` permite que uma organização plane
 - `locations`: locais da organização, com timezone explícito;
 - `events`: agenda genérica, separando organização publicadora e anfitriã;
 - `missions`: oportunidade de serviço vinculada ao evento e a um tipo de ministério;
-- `mission_slots`: quantidade de pessoas necessária para cada função de serviço.
+- `mission_slots`: quantidade de pessoas necessária para cada função de serviço;
 - `assignments`: designação de uma pessoa qualificada para uma vaga da missão.
 
 Eventos internos são criados como `private` e `draft`, com publicadora e anfitriã iguais à organização ativa. Missões internas também são `private` e `draft`, usam a política `coordinator_assignment` e têm a própria organização como alvo. Mudanças de estado serão casos de uso explícitos em incrementos posteriores; criar um rascunho nunca publica uma escala silenciosamente.
@@ -25,7 +25,7 @@ Eventos internos são criados como `private` e `draft`, com publicadora e anfitr
 - quantidades devem ser positivas na aplicação e no PostgreSQL;
 - catálogos bloqueiam a organização antes da verificação de unicidade;
 - criação de evento bloqueia tipo e local; criação de missão bloqueia evento, ministério e funções;
-- criação de catálogo, evento e missão gera auditoria na mesma transação.
+- criação de catálogo, evento e missão gera auditoria na mesma transação;
 - uma designação exige membership ativo e competência na função solicitada;
 - a capacidade da vaga considera designações `pending` e `confirmed`;
 - a mesma pessoa não pode ser designada duas vezes para a mesma missão;
@@ -59,10 +59,11 @@ Todas as rotas exigem Sanctum e começam em `/api/v1`.
 | `GET` | `/organizations/{organization}/events/{event}` | consultar evento com missões e vagas |
 | `GET`, `POST` | `/organizations/{organization}/events/{event}/missions` | listar ou criar missões internas |
 | `GET`, `POST` | `/organizations/{organization}/events/{event}/missions/{mission}/assignments` | listar ou criar designações |
+| `GET` | `/organizations/{organization}/events/{event}/missions/{mission}/slots/{slot}/eligible-members` | listar membros ativos qualificados para a vaga |
 
 Datas recebidas devem representar um instante ISO 8601. A API normaliza o valor para UTC e retorna ISO 8601 em UTC; o cliente é responsável por apresentar no timezone da organização.
 
-O painel interpreta os campos `datetime-local` no timezone da organização, incluindo o deslocamento vigente na data informada, antes de enviá-los como UTC. A agenda permite criar os catálogos, rascunhos de evento, missões e múltiplas vagas individuais sem expor ações incompatíveis com o papel atual.
+O painel interpreta os campos `datetime-local` no timezone da organização, incluindo o deslocamento vigente na data informada, antes de enviá-los como UTC. A agenda permite criar os catálogos, rascunhos de evento, missões, múltiplas vagas individuais e designações sem expor ações incompatíveis com o papel atual. A consulta de elegibilidade evita chamadas por pessoa e não substitui a revalidação transacional durante a designação.
 
 ## Limites atuais
 
