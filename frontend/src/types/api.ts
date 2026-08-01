@@ -163,3 +163,108 @@ export interface PersonFunction {
   service_function: ServiceFunction
   assigned_at: string
 }
+
+export interface EventType {
+  id: string
+  organization_id: string
+  name: string
+  slug: string
+  active: boolean
+  created_at: string
+}
+
+export interface CreateEventTypeInput {
+  name: string
+}
+
+export interface Location {
+  id: string
+  organization_id: string
+  name: string
+  slug: string
+  address_line: string | null
+  city: string | null
+  timezone: string
+  active: boolean
+  created_at: string
+}
+
+export interface CreateLocationInput {
+  name: string
+  address_line?: string
+  city?: string
+  timezone: string
+}
+
+export type EventVisibility = 'public' | 'restricted' | 'private' | 'unlisted'
+export type EventStatus = 'draft' | 'published' | 'cancelled' | 'completed'
+
+export interface ScheduledEvent {
+  id: string
+  publisher_organization_id: string
+  host_organization_id: string
+  event_type_id: string
+  event_type: EventType
+  location_id: string | null
+  location: Location | null
+  title: string
+  description: string | null
+  starts_at: string
+  ends_at: string
+  visibility: EventVisibility
+  status: EventStatus
+  missions?: Mission[]
+  created_at: string
+}
+
+export interface CreateEventInput {
+  event_type_id: string
+  location_id?: string
+  title: string
+  description?: string
+  starts_at: string
+  ends_at: string
+}
+
+export interface MissionSlot {
+  id: string
+  mission_id: string
+  slot_type: 'person' | 'organization'
+  service_function_id: string | null
+  service_function: ServiceFunction | null
+  quantity: number
+  required: boolean
+  created_at: string
+}
+
+export interface Mission {
+  id: string
+  event_id: string
+  publisher_organization_id: string
+  target_organization_id: string
+  ministry_type_id: string
+  ministry_type: MinistryType
+  title: string
+  description: string | null
+  visibility: 'public' | 'restricted' | 'private' | 'unlisted'
+  participation_policy:
+    | 'invitation_only'
+    | 'application_required'
+    | 'automatic_acceptance'
+    | 'coordinator_assignment'
+  status: 'draft' | 'open' | 'filled' | 'cancelled' | 'completed'
+  response_deadline: string | null
+  slots: MissionSlot[]
+  created_at: string
+}
+
+export interface CreateInternalMissionInput {
+  ministry_type_id: string
+  title: string
+  description?: string
+  slots: Array<{
+    service_function_id: string
+    quantity: number
+    required?: boolean
+  }>
+}

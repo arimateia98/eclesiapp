@@ -48,4 +48,5 @@ Cada incremento exige migration reversível, autorização, teste de isolamento,
 - vínculo seguro por convite para pessoas pré-cadastradas: concluído;
 - Ministries: concluído no recorte de catálogo, funções e competências pessoais;
 - Events e Missions internas: concluídos no recorte de catálogo, agenda privada em rascunho e vagas individuais;
+- painel de Events e Missions internas: concluído com timezone organizacional, múltiplas vagas e permissões por papel;
 - Assignments, conflitos concorrentes e etapas posteriores: pendentes.

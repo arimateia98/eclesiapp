@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   acceptAccountInvitation,
   assignPersonFunction,
+  createInternalMission,
   fetchOrganizations,
   inviteOrganizationMember,
   login,
@@ -103,5 +104,27 @@ describe('serviço da API', () => {
     expect(assignOptions.method).toBe('POST')
     expect(removeUrl).toContain('/members/01KPERSON/functions/01KFUNCTION')
     expect(removeOptions.method).toBe('DELETE')
+  })
+
+  it('cria missão interna usando o escopo completo do evento', async () => {
+    fetchMock.mockResolvedValue({
+      ok: true,
+      status: 201,
+      json: async () => ({ data: { id: '01KMISSION' } }),
+    })
+
+    await createInternalMission('token', '01KORG', '01KEVENT', {
+      ministry_type_id: '01KMINISTRY',
+      title: 'Equipe de leitores',
+      slots: [{ service_function_id: '01KFUNCTION', quantity: 2 }],
+    })
+
+    const [url, options] = fetchMock.mock.calls[0] as [string, RequestInit]
+    expect(url).toContain('/organizations/01KORG/events/01KEVENT/missions')
+    expect(options.method).toBe('POST')
+    expect(JSON.parse(String(options.body))).toMatchObject({
+      ministry_type_id: '01KMINISTRY',
+      slots: [{ service_function_id: '01KFUNCTION', quantity: 2 }],
+    })
   })
 })

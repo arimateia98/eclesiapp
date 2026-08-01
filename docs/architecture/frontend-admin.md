@@ -15,10 +15,14 @@ O painel Vue oferece um fluxo navegável para:
 - cadastrar uma pessoa sem criar usuário;
 - criar tipos de ministério e funções de serviço conforme o papel do usuário;
 - consultar, atribuir e remover competências das pessoas;
+- criar tipos de evento e locais conforme o papel do usuário;
+- planejar eventos privados em rascunho no timezone da organização;
+- consultar eventos e suas missões internas;
+- criar missões com uma ou mais vagas individuais por função de serviço;
 - enviar um convite de acesso para a pessoa cadastrada;
 - aceitar o convite por link e vincular uma nova conta ao perfil existente.
 
-O fluxo usa composição de telas em `App.vue`, sem roteador ou estado global. A URL só carrega o token do convite, removido com `history.replaceState` após o aceite ou cancelamento. Um roteador deve ser introduzido quando eventos, missões e escalas criarem navegação persistente entre mais contextos.
+O fluxo usa composição de telas em `App.vue`, sem roteador ou estado global. A área da organização alterna localmente entre agenda e pessoas; evento selecionado e formulários não são persistidos na URL. A URL só carrega o token do convite, removido com `history.replaceState` após o aceite ou cancelamento. Um roteador deve ser introduzido junto às designações e à consulta persistente da escala, quando evento, missão ou planejamento precisarem de link direto e navegação pelo histórico.
 
 ## Organização do código
 
@@ -29,6 +33,8 @@ O fluxo usa composição de telas em `App.vue`, sem roteador ou estado global. A
 - `src/components/OrganizationDashboard.vue`: listagem e criação de organizações;
 - `src/components/OrganizationWorkspace.vue`: membros, cadastro de pessoa e convite;
 - `src/components/MinistryCapabilitiesPanel.vue`: catálogo e competências pessoais;
+- `src/components/SchedulingPanel.vue`: catálogos de agenda, eventos, missões e vagas individuais;
+- `src/services/dateTime.ts`: interpretação do horário de parede no timezone da organização e conversão para UTC;
 - `src/App.vue`: coordenação de sessão, navegação local, carregamento e expiração.
 
 Componentes visuais não chamam `fetch` diretamente. O serviço da API centraliza headers, envelopes, autenticação e erros previsíveis. Os componentes emitem intenções e a aplicação coordena o estado assíncrono.
@@ -45,6 +51,9 @@ Antes de produção, o painel web deve migrar para autenticação stateful do Sa
 
 - formulários usam labels, autocomplete e mensagens com `role="alert"`;
 - loading, vazio, sucesso, falha de API e sessão expirada possuem estados explícitos;
+- formulários preservam os dados quando a API rejeita a operação;
+- ações de catálogo e planejamento são apresentadas conforme o papel atual, sem substituir a autorização do backend;
+- horários são exibidos no timezone da organização e enviados como instantes UTC;
 - ações de convite sem e-mail válido permanecem indisponíveis;
 - layout é responsivo a partir de 320 px;
 - animações respeitam `prefers-reduced-motion`;

@@ -51,10 +51,18 @@ describe('OrganizationWorkspace', () => {
         serviceFunctions: [],
         personFunctions: [],
         selectedPersonId: null,
+        eventTypes: [],
+        locations: [],
+        events: [],
+        missions: [],
+        selectedEventId: null,
         loading: false,
         loadingCatalog: false,
         catalogBusy: null,
         updatingFunctionId: null,
+        loadingSchedule: false,
+        loadingMissions: false,
+        scheduleBusy: null,
         adding: false,
         invitingPersonId: null,
         error: null,
@@ -62,6 +70,7 @@ describe('OrganizationWorkspace', () => {
       },
     })
 
+    await wrapper.get('[data-test="workspace-people-tab"]').trigger('click')
     await wrapper.get('[data-test="open-add-member"]').trigger('click')
     const inputs = wrapper.findAll('[data-test="member-form"] input')
     await inputs[0].setValue('Ana de Nazaré')

@@ -1344,7 +1344,7 @@ Apresente:
 
 ## 34. Estado atual do projeto
 
-Última atualização: 23 de julho de 2026.
+Última atualização: 1º de agosto de 2026.
 
 Esta seção deve ser atualizada ao concluir cada incremento relevante. Ela registra estado, não substitui as regras arquiteturais anteriores.
 
@@ -1373,12 +1373,14 @@ Esta seção deve ser atualizada ao concluir cada incremento relevante. Ela regi
 - painel para catálogo de ministérios e gestão das competências de cada pessoa;
 - módulos `Scheduling` e `Missions` com tipos de evento, locais, eventos internos, missões internas e vagas individuais;
 - isolamento organizacional, integridade composta e auditoria transacional para eventos e missões;
+- painel administrativo para catálogos de agenda, eventos privados em rascunho, missões internas e múltiplas vagas individuais;
+- conversão explícita entre horário local da organização e UTC, com testes de deslocamento sazonal;
 - documentação de Identity, Organizations, Ministries, Scheduling, Missions, segurança, tenancy e painel administrativo.
 
 ### Em andamento
 
 - designações, conflitos de agenda e publicação de escala;
-- integração do planejamento de eventos e missões no painel administrativo.
+- definição do primeiro fluxo de designação concorrente e seu histórico.
 
 ### Pendente para o primeiro MVP
 
@@ -1391,7 +1393,7 @@ Esta seção deve ser atualizada ao concluir cada incremento relevante. Ela regi
 7. validação concorrente de conflitos com bloqueio de pessoa;
 8. exceções autorizadas com justificativa;
 9. notificações e outbox;
-10. telas administrativas para eventos, missões e demais fluxos internos;
+10. telas administrativas para designações, conflitos e demais fluxos internos;
 11. testes PostgreSQL dedicados e testes de concorrência;
 12. piloto controlado, observabilidade e endurecimento de produção.
 

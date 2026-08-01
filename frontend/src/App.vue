@@ -11,7 +11,15 @@ import {
   createMinistryType,
   createOrganization,
   createServiceFunction,
+  createEvent,
+  createEventType,
+  createInternalMission,
+  createLocation,
+  fetchEvents,
+  fetchEventTypes,
   fetchHealth,
+  fetchInternalMissions,
+  fetchLocations,
   fetchMinistryTypes,
   fetchOrganizationMembers,
   fetchOrganizations,
@@ -26,13 +34,21 @@ import type {
   AddOrganizationMemberInput,
   AuthSession,
   CreateMinistryTypeInput,
+  CreateEventInput,
+  CreateEventTypeInput,
+  CreateInternalMissionInput,
+  CreateLocationInput,
   CreateOrganizationInput,
   CreateServiceFunctionInput,
   MinistryType,
+  EventType,
+  Location,
+  Mission,
   Organization,
   OrganizationMembership,
   PersonFunction,
   ServiceFunction,
+  ScheduledEvent,
 } from './types/api'
 
 const session = ref<AuthSession | null>(restoreSession())
@@ -43,6 +59,11 @@ const ministryTypes = ref<MinistryType[]>([])
 const serviceFunctions = ref<ServiceFunction[]>([])
 const personFunctions = ref<PersonFunction[]>([])
 const selectedPersonId = ref<string | null>(null)
+const eventTypes = ref<EventType[]>([])
+const locations = ref<Location[]>([])
+const events = ref<ScheduledEvent[]>([])
+const missions = ref<Mission[]>([])
+const selectedEventId = ref<string | null>(null)
 const invitationToken = ref(new window.URLSearchParams(window.location.search).get('invitation'))
 const apiOnline = ref(false)
 const loadingOrganizations = ref(false)
@@ -53,6 +74,9 @@ const loadingCapabilities = ref(false)
 const addingMember = ref(false)
 const catalogBusy = ref<'type' | 'function' | null>(null)
 const updatingFunctionId = ref<string | null>(null)
+const loadingSchedule = ref(false)
+const loadingMissions = ref(false)
+const scheduleBusy = ref<'event-type' | 'location' | 'event' | 'mission' | null>(null)
 const invitingPersonId = ref<string | null>(null)
 const dashboardError = ref<string | null>(null)
 const dashboardNotice = ref<string | null>(null)
@@ -92,6 +116,7 @@ function handleExpiredSession(error: unknown): boolean {
     serviceFunctions.value = []
     personFunctions.value = []
     selectedPersonId.value = null
+    resetSchedule()
 
     return true
   }
@@ -173,7 +198,7 @@ async function handleSelectOrganization(organization: Organization): Promise<voi
   personFunctions.value = []
   selectedPersonId.value = null
   workspaceNotice.value = null
-  await Promise.all([loadMembers(), loadCatalog()])
+  await Promise.all([loadMembers(), loadCatalog(), loadSchedule()])
 }
 
 function handleCloseWorkspace(): void {
@@ -183,8 +208,180 @@ function handleCloseWorkspace(): void {
   serviceFunctions.value = []
   personFunctions.value = []
   selectedPersonId.value = null
+  resetSchedule()
   workspaceError.value = null
   workspaceNotice.value = null
+}
+
+function resetSchedule(): void {
+  eventTypes.value = []
+  locations.value = []
+  events.value = []
+  missions.value = []
+  selectedEventId.value = null
+  loadingSchedule.value = false
+  loadingMissions.value = false
+  scheduleBusy.value = null
+}
+
+async function loadSchedule(): Promise<void> {
+  if (!session.value || !selectedOrganization.value) {
+    return
+  }
+
+  loadingSchedule.value = true
+  workspaceError.value = null
+
+  try {
+    const [loadedEventTypes, loadedLocations, loadedEvents] = await Promise.all([
+      fetchEventTypes(session.value.token, selectedOrganization.value.id),
+      fetchLocations(session.value.token, selectedOrganization.value.id),
+      fetchEvents(session.value.token, selectedOrganization.value.id),
+    ])
+    eventTypes.value = loadedEventTypes
+    locations.value = loadedLocations
+    events.value = loadedEvents
+
+    if (selectedEventId.value && !loadedEvents.some((event) => event.id === selectedEventId.value)) {
+      selectedEventId.value = null
+      missions.value = []
+    }
+  } catch (error) {
+    if (!handleExpiredSession(error)) {
+      workspaceError.value = messageFrom(error)
+    }
+  } finally {
+    loadingSchedule.value = false
+  }
+}
+
+async function handleSelectEvent(eventId: string): Promise<void> {
+  if (!session.value || !selectedOrganization.value) {
+    return
+  }
+
+  selectedEventId.value = eventId
+  missions.value = []
+  loadingMissions.value = true
+  workspaceError.value = null
+
+  try {
+    missions.value = await fetchInternalMissions(
+      session.value.token,
+      selectedOrganization.value.id,
+      eventId,
+    )
+  } catch (error) {
+    if (!handleExpiredSession(error)) {
+      workspaceError.value = messageFrom(error)
+    }
+  } finally {
+    loadingMissions.value = false
+  }
+}
+
+async function handleCreateEventType(input: CreateEventTypeInput): Promise<void> {
+  if (!session.value || !selectedOrganization.value) {
+    return
+  }
+
+  scheduleBusy.value = 'event-type'
+  workspaceError.value = null
+  workspaceNotice.value = null
+
+  try {
+    const eventType = await createEventType(session.value.token, selectedOrganization.value.id, input)
+    eventTypes.value = [...eventTypes.value, eventType].sort((left, right) =>
+      left.name.localeCompare(right.name, 'pt-BR'),
+    )
+    workspaceNotice.value = `${eventType.name} foi adicionado aos tipos de evento.`
+  } catch (error) {
+    if (!handleExpiredSession(error)) {
+      workspaceError.value = messageFrom(error)
+    }
+  } finally {
+    scheduleBusy.value = null
+  }
+}
+
+async function handleCreateLocation(input: CreateLocationInput): Promise<void> {
+  if (!session.value || !selectedOrganization.value) {
+    return
+  }
+
+  scheduleBusy.value = 'location'
+  workspaceError.value = null
+  workspaceNotice.value = null
+
+  try {
+    const location = await createLocation(session.value.token, selectedOrganization.value.id, input)
+    locations.value = [...locations.value, location].sort((left, right) =>
+      left.name.localeCompare(right.name, 'pt-BR'),
+    )
+    workspaceNotice.value = `${location.name} foi adicionado aos locais.`
+  } catch (error) {
+    if (!handleExpiredSession(error)) {
+      workspaceError.value = messageFrom(error)
+    }
+  } finally {
+    scheduleBusy.value = null
+  }
+}
+
+async function handleCreateEvent(input: CreateEventInput): Promise<void> {
+  if (!session.value || !selectedOrganization.value) {
+    return
+  }
+
+  scheduleBusy.value = 'event'
+  workspaceError.value = null
+  workspaceNotice.value = null
+
+  try {
+    const event = await createEvent(session.value.token, selectedOrganization.value.id, input)
+    events.value = [...events.value, event].sort((left, right) =>
+      left.starts_at.localeCompare(right.starts_at),
+    )
+    selectedEventId.value = event.id
+    missions.value = []
+    workspaceNotice.value = `${event.title} foi criado como rascunho privado.`
+  } catch (error) {
+    if (!handleExpiredSession(error)) {
+      workspaceError.value = messageFrom(error)
+    }
+  } finally {
+    scheduleBusy.value = null
+  }
+}
+
+async function handleCreateMission(
+  eventId: string,
+  input: CreateInternalMissionInput,
+): Promise<void> {
+  if (!session.value || !selectedOrganization.value || selectedEventId.value !== eventId) {
+    return
+  }
+
+  scheduleBusy.value = 'mission'
+  workspaceError.value = null
+  workspaceNotice.value = null
+
+  try {
+    const mission = await createInternalMission(
+      session.value.token,
+      selectedOrganization.value.id,
+      eventId,
+      input,
+    )
+    missions.value = [...missions.value, mission]
+    workspaceNotice.value = `${mission.title} foi criada com ${mission.slots.length} vaga(s).`
+  } catch (error) {
+    if (!handleExpiredSession(error)) {
+      workspaceError.value = messageFrom(error)
+    }
+  } finally {
+    scheduleBusy.value = null
+  }
 }
 
 async function loadCatalog(): Promise<void> {
@@ -422,6 +619,7 @@ async function handleLogout(): Promise<void> {
   serviceFunctions.value = []
   personFunctions.value = []
   selectedPersonId.value = null
+  resetSchedule()
   dashboardNotice.value = null
   dashboardError.value = null
   workspaceNotice.value = null
@@ -485,10 +683,18 @@ async function handleLogout(): Promise<void> {
     :service-functions="serviceFunctions"
     :person-functions="personFunctions"
     :selected-person-id="selectedPersonId"
+    :event-types="eventTypes"
+    :locations="locations"
+    :events="events"
+    :missions="missions"
+    :selected-event-id="selectedEventId"
     :loading="loadingMembers"
     :loading-catalog="loadingCatalog || loadingCapabilities"
     :catalog-busy="catalogBusy"
     :updating-function-id="updatingFunctionId"
+    :loading-schedule="loadingSchedule"
+    :loading-missions="loadingMissions"
+    :schedule-busy="scheduleBusy"
     :adding="addingMember"
     :inviting-person-id="invitingPersonId"
     :error="workspaceError"
@@ -503,6 +709,12 @@ async function handleLogout(): Promise<void> {
     @create-service-function="handleCreateServiceFunction"
     @select-person="handleSelectPerson"
     @toggle-function="handleToggleFunction"
+    @refresh-schedule="loadSchedule"
+    @select-event="handleSelectEvent"
+    @create-event-type="handleCreateEventType"
+    @create-location="handleCreateLocation"
+    @create-event="handleCreateEvent"
+    @create-mission="handleCreateMission"
   />
 
   <OrganizationDashboard

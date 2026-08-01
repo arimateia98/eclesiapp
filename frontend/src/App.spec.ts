@@ -11,10 +11,18 @@ const apiMocks = vi.hoisted(() => ({
   fetchMinistryTypes: vi.fn(),
   fetchServiceFunctions: vi.fn(),
   fetchPersonFunctions: vi.fn(),
+  fetchEventTypes: vi.fn(),
+  fetchLocations: vi.fn(),
+  fetchEvents: vi.fn(),
+  fetchInternalMissions: vi.fn(),
   createMinistryType: vi.fn(),
   createServiceFunction: vi.fn(),
   assignPersonFunction: vi.fn(),
   removePersonFunction: vi.fn(),
+  createEventType: vi.fn(),
+  createLocation: vi.fn(),
+  createEvent: vi.fn(),
+  createInternalMission: vi.fn(),
   addOrganizationMember: vi.fn(),
   inviteOrganizationMember: vi.fn(),
   logout: vi.fn(),
@@ -85,10 +93,18 @@ describe('App', () => {
     apiMocks.fetchMinistryTypes.mockResolvedValue([])
     apiMocks.fetchServiceFunctions.mockResolvedValue([])
     apiMocks.fetchPersonFunctions.mockResolvedValue([])
+    apiMocks.fetchEventTypes.mockResolvedValue([])
+    apiMocks.fetchLocations.mockResolvedValue([])
+    apiMocks.fetchEvents.mockResolvedValue([])
+    apiMocks.fetchInternalMissions.mockResolvedValue([])
     apiMocks.createMinistryType.mockResolvedValue(undefined)
     apiMocks.createServiceFunction.mockResolvedValue(undefined)
     apiMocks.assignPersonFunction.mockResolvedValue(undefined)
     apiMocks.removePersonFunction.mockResolvedValue(undefined)
+    apiMocks.createEventType.mockResolvedValue(undefined)
+    apiMocks.createLocation.mockResolvedValue(undefined)
+    apiMocks.createEvent.mockResolvedValue(undefined)
+    apiMocks.createInternalMission.mockResolvedValue(undefined)
     apiMocks.addOrganizationMember.mockResolvedValue(membership)
     apiMocks.inviteOrganizationMember.mockResolvedValue({
       id: '01KINVITE',
@@ -140,6 +156,7 @@ describe('App', () => {
     await flushPromises()
     await wrapper.get(`[data-test="open-${organization.id}"]`).trigger('click')
     await flushPromises()
+    await wrapper.get('[data-test="workspace-people-tab"]').trigger('click')
     await wrapper.get(`[data-test="invite-${membership.person.id}"]`).trigger('click')
     await flushPromises()
 
@@ -147,6 +164,9 @@ describe('App', () => {
       session.token,
       organization.id,
     )
+    expect(apiMocks.fetchEventTypes).toHaveBeenCalledWith(session.token, organization.id)
+    expect(apiMocks.fetchLocations).toHaveBeenCalledWith(session.token, organization.id)
+    expect(apiMocks.fetchEvents).toHaveBeenCalledWith(session.token, organization.id)
     expect(apiMocks.inviteOrganizationMember).toHaveBeenCalledWith(
       session.token,
       organization.id,

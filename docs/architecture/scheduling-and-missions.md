@@ -53,6 +53,8 @@ Todas as rotas exigem Sanctum e começam em `/api/v1`.
 
 Datas recebidas devem representar um instante ISO 8601. A API normaliza o valor para UTC e retorna ISO 8601 em UTC; o cliente é responsável por apresentar no timezone da organização.
 
+O painel interpreta os campos `datetime-local` no timezone da organização, incluindo o deslocamento vigente na data informada, antes de enviá-los como UTC. A agenda permite criar os catálogos, rascunhos de evento, missões e múltiplas vagas individuais sem expor ações incompatíveis com o papel atual.
+
 ## Limites atuais
 
 Ainda não existem edição, cancelamento, publicação, recorrência, locais compartilhados, eventos sediados por outra organização ou vagas para organizações. Designações, indisponibilidades e conflitos serão o próximo incremento e seguirão o bloqueio pessimista definido no ADR 0004.

@@ -8,8 +8,15 @@ import type {
   AuthSession,
   CreateOrganizationInput,
   CreateMinistryTypeInput,
+  CreateEventInput,
+  CreateEventTypeInput,
+  CreateInternalMissionInput,
+  CreateLocationInput,
   CreateServiceFunctionInput,
   HealthData,
+  EventType,
+  Location,
+  Mission,
   LoginInput,
   Organization,
   OrganizationMembership,
@@ -17,6 +24,7 @@ import type {
   PersonFunction,
   RegisterInput,
   ServiceFunction,
+  ScheduledEvent,
 } from '../types/api'
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '/api/v1'
@@ -296,4 +304,114 @@ export async function removePersonFunction(
     { method: 'DELETE' },
     token,
   )
+}
+
+export async function fetchEventTypes(
+  token: string,
+  organizationId: string,
+): Promise<EventType[]> {
+  const payload = await request<ApiEnvelope<EventType[]>>(
+    `/organizations/${organizationId}/event-types?per_page=100`,
+    {},
+    token,
+  )
+
+  return payload.data
+}
+
+export async function createEventType(
+  token: string,
+  organizationId: string,
+  input: CreateEventTypeInput,
+): Promise<EventType> {
+  const payload = await request<ApiEnvelope<EventType>>(
+    `/organizations/${organizationId}/event-types`,
+    { method: 'POST', body: JSON.stringify(input) },
+    token,
+  )
+
+  return payload.data
+}
+
+export async function fetchLocations(
+  token: string,
+  organizationId: string,
+): Promise<Location[]> {
+  const payload = await request<ApiEnvelope<Location[]>>(
+    `/organizations/${organizationId}/locations?per_page=100`,
+    {},
+    token,
+  )
+
+  return payload.data
+}
+
+export async function createLocation(
+  token: string,
+  organizationId: string,
+  input: CreateLocationInput,
+): Promise<Location> {
+  const payload = await request<ApiEnvelope<Location>>(
+    `/organizations/${organizationId}/locations`,
+    { method: 'POST', body: JSON.stringify(input) },
+    token,
+  )
+
+  return payload.data
+}
+
+export async function fetchEvents(
+  token: string,
+  organizationId: string,
+): Promise<ScheduledEvent[]> {
+  const payload = await request<ApiEnvelope<ScheduledEvent[]>>(
+    `/organizations/${organizationId}/events?per_page=100`,
+    {},
+    token,
+  )
+
+  return payload.data
+}
+
+export async function createEvent(
+  token: string,
+  organizationId: string,
+  input: CreateEventInput,
+): Promise<ScheduledEvent> {
+  const payload = await request<ApiEnvelope<ScheduledEvent>>(
+    `/organizations/${organizationId}/events`,
+    { method: 'POST', body: JSON.stringify(input) },
+    token,
+  )
+
+  return payload.data
+}
+
+export async function fetchInternalMissions(
+  token: string,
+  organizationId: string,
+  eventId: string,
+): Promise<Mission[]> {
+  const payload = await request<ApiEnvelope<Mission[]>>(
+    `/organizations/${organizationId}/events/${eventId}/missions?per_page=100`,
+    {},
+    token,
+  )
+
+  return payload.data
+}
+
+export async function createInternalMission(
+  token: string,
+  organizationId: string,
+  eventId: string,
+  input: CreateInternalMissionInput,
+): Promise<Mission> {
+  const payload = await request<ApiEnvelope<Mission>>(
+    `/organizations/${organizationId}/events/${eventId}/missions`,
+    { method: 'POST', body: JSON.stringify(input) },
+    token,
+  )
+
+  return payload.data
 }

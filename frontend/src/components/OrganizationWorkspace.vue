@@ -1,16 +1,25 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue'
 import MinistryCapabilitiesPanel from './MinistryCapabilitiesPanel.vue'
+import SchedulingPanel from './SchedulingPanel.vue'
 import type {
   AddOrganizationMemberInput,
   AuthSession,
   CreateMinistryTypeInput,
   CreateServiceFunctionInput,
+  CreateEventInput,
+  CreateEventTypeInput,
+  CreateInternalMissionInput,
+  CreateLocationInput,
+  EventType,
+  Location,
   MembershipRole,
   MinistryType,
   Organization,
   OrganizationMembership,
   PersonFunction,
+  Mission,
+  ScheduledEvent,
   ServiceFunction,
 } from '../types/api'
 
@@ -21,11 +30,19 @@ const props = defineProps<{
   ministryTypes: MinistryType[]
   serviceFunctions: ServiceFunction[]
   personFunctions: PersonFunction[]
+  eventTypes: EventType[]
+  locations: Location[]
+  events: ScheduledEvent[]
+  missions: Mission[]
+  selectedEventId: string | null
   selectedPersonId: string | null
   loading: boolean
   loadingCatalog: boolean
   catalogBusy: 'type' | 'function' | null
   updatingFunctionId: string | null
+  loadingSchedule: boolean
+  loadingMissions: boolean
+  scheduleBusy: 'event-type' | 'location' | 'event' | 'mission' | null
   adding: boolean
   invitingPersonId: string | null
   error: string | null
@@ -43,9 +60,16 @@ const emit = defineEmits<{
   createServiceFunction: [input: CreateServiceFunctionInput]
   selectPerson: [personId: string]
   toggleFunction: [serviceFunctionId: string, assigned: boolean]
+  refreshSchedule: []
+  selectEvent: [eventId: string]
+  createEventType: [input: CreateEventTypeInput]
+  createLocation: [input: CreateLocationInput]
+  createEvent: [input: CreateEventInput]
+  createMission: [eventId: string, input: CreateInternalMissionInput]
 }>()
 
 const showMemberForm = ref(false)
+const activeSection = ref<'schedule' | 'people'>('schedule')
 const form = reactive<AddOrganizationMemberInput>({
   full_name: '',
   preferred_name: '',
@@ -137,12 +161,13 @@ function submitMember(): void {
             {{ initials(organization.name) }}
           </span>
           <div>
-            <span class="eyebrow">Gestão de pessoas</span>
+            <span class="eyebrow">Área da organização</span>
             <h1>{{ organization.name }}</h1>
             <p>{{ members.length }} pessoas · {{ peopleWithoutAccount }} ainda sem acesso</p>
           </div>
         </div>
         <button
+          v-if="activeSection === 'people'"
           class="primary-button primary-button--compact"
           type="button"
           data-test="open-add-member"
@@ -152,6 +177,28 @@ function submitMember(): void {
           Cadastrar pessoa
         </button>
       </section>
+
+      <nav
+        class="workspace-tabs"
+        aria-label="Áreas da organização"
+      >
+        <button
+          type="button"
+          :class="{ 'is-active': activeSection === 'schedule' }"
+          data-test="workspace-schedule-tab"
+          @click="activeSection = 'schedule'"
+        >
+          Agenda e missões
+        </button>
+        <button
+          type="button"
+          :class="{ 'is-active': activeSection === 'people' }"
+          data-test="workspace-people-tab"
+          @click="activeSection = 'people'"
+        >
+          Pessoas e competências
+        </button>
+      </nav>
 
       <p
         v-if="notice"
@@ -170,7 +217,30 @@ function submitMember(): void {
         {{ error }}
       </p>
 
+      <SchedulingPanel
+        v-if="activeSection === 'schedule'"
+        :organization="organization"
+        :event-types="eventTypes"
+        :locations="locations"
+        :events="events"
+        :missions="missions"
+        :ministry-types="ministryTypes"
+        :service-functions="serviceFunctions"
+        :selected-event-id="selectedEventId"
+        :loading="loadingSchedule"
+        :loading-missions="loadingMissions"
+        :busy="scheduleBusy"
+        :error="error"
+        @refresh="emit('refreshSchedule')"
+        @select-event="emit('selectEvent', $event)"
+        @create-event-type="emit('createEventType', $event)"
+        @create-location="emit('createLocation', $event)"
+        @create-event="emit('createEvent', $event)"
+        @create-mission="(eventId, input) => emit('createMission', eventId, input)"
+      />
+
       <MinistryCapabilitiesPanel
+        v-if="activeSection === 'people'"
         :organization="organization"
         :members="members"
         :ministry-types="ministryTypes"
@@ -189,7 +259,7 @@ function submitMember(): void {
       />
 
       <section
-        v-if="showMemberForm"
+        v-if="activeSection === 'people' && showMemberForm"
         class="create-panel"
         aria-labelledby="member-form-title"
       >
@@ -282,7 +352,10 @@ function submitMember(): void {
         </form>
       </section>
 
-      <section class="members-panel">
+      <section
+        v-if="activeSection === 'people'"
+        class="members-panel"
+      >
         <div class="section-heading members-panel__heading">
           <div>
             <span class="section-kicker">Equipe</span>
