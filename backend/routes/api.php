@@ -11,6 +11,7 @@ use App\Modules\Missions\Http\Controllers\InternalMissionController;
 use App\Modules\Organizations\Http\Controllers\OrganizationController;
 use App\Modules\Organizations\Http\Controllers\OrganizationMemberController;
 use App\Modules\Organizations\Http\Controllers\OrganizationRelationshipController;
+use App\Modules\Scheduling\Http\Controllers\AssignmentController;
 use App\Modules\Scheduling\Http\Controllers\EventController;
 use App\Modules\Scheduling\Http\Controllers\EventTypeController;
 use App\Modules\Scheduling\Http\Controllers\LocationController;
@@ -69,6 +70,10 @@ Route::prefix('v1')->group(function (): void {
             '/organizations/{organization}/events/{event}/missions',
             [InternalMissionController::class, 'store'],
         )->name('api.v1.organizations.events.missions.store');
+        Route::get('/organizations/{organization}/events/{event}/missions/{mission}/assignments', [AssignmentController::class, 'index'])
+            ->name('api.v1.organizations.events.missions.assignments.index');
+        Route::post('/organizations/{organization}/events/{event}/missions/{mission}/assignments', [AssignmentController::class, 'store'])
+            ->name('api.v1.organizations.events.missions.assignments.store');
         Route::get(
             '/organizations/{organization}/members/{person}/functions',
             [PersonFunctionController::class, 'index'],

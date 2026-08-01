@@ -17,4 +17,5 @@ enum AuditAction: string
     case LocationCreated = 'scheduling.location_created';
     case EventCreated = 'scheduling.event_created';
     case MissionCreated = 'missions.mission_created';
+    case AssignmentCreated = 'scheduling.assignment_created';
 }
