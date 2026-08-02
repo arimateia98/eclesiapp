@@ -35,6 +35,9 @@ Eventos internos são criados como `private` e `draft`, com publicadora e anfitr
 - indisponibilidade é um aviso de planejamento e não impede a coordenação de criar uma designação;
 - a pessoa é bloqueada antes das validações e da persistência, serializando tentativas concorrentes conforme o ADR 0004;
 - a criação da designação e sua auditoria acontecem na mesma transação.
+- a publicação é explícita e só aceita escalas em rascunho com todas as vagas obrigatórias preenchidas;
+- publicar confirma as designações planejadas, marca as missões como preenchidas e o evento como publicado na mesma transação;
+- a publicação é auditada com os estados anterior e novo e não pode ser repetida silenciosamente.
 
 Endereço do local e descrição do evento ou missão não são copiados para a auditoria. O registro guarda apenas identificadores, intervalo, timezone e estados operacionais necessários à rastreabilidade.
 
@@ -60,6 +63,7 @@ Todas as rotas exigem Sanctum e começam em `/api/v1`.
 | `GET`, `POST` | `/organizations/{organization}/locations` | listar ou criar locais |
 | `GET`, `POST` | `/organizations/{organization}/events` | listar ou criar eventos internos |
 | `GET` | `/organizations/{organization}/events/{event}` | consultar evento com missões e vagas |
+| `POST` | `/organizations/{organization}/events/{event}/publish` | publicar uma escala interna completa |
 | `GET`, `POST` | `/organizations/{organization}/events/{event}/missions` | listar ou criar missões internas |
 | `GET`, `POST` | `/organizations/{organization}/events/{event}/missions/{mission}/assignments` | listar ou criar designações |
 | `GET` | `/organizations/{organization}/events/{event}/missions/{mission}/slots/{slot}/eligible-members` | listar membros ativos qualificados para a vaga |
@@ -70,4 +74,4 @@ O painel interpreta os campos `datetime-local` no timezone da organização, inc
 
 ## Limites atuais
 
-Ainda não existem edição, cancelamento, publicação, recorrência, locais compartilhados, eventos sediados por outra organização ou vagas para organizações. Também permanecem pendentes limite diário configurável, exceções autorizadas e histórico de alterações de uma escala publicada. A designação é definida pela coordenação e não exige confirmação ou rejeição do servo.
+Ainda não existem edição, cancelamento, recorrência, locais compartilhados, eventos sediados por outra organização ou vagas para organizações. Também permanecem pendentes limite diário configurável, exceções autorizadas e histórico de alterações posteriores de uma escala publicada. A designação é definida pela coordenação e não exige confirmação ou rejeição do servo.
