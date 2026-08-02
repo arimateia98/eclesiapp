@@ -59,5 +59,5 @@ Cada incremento exige migration reversível, autorização, teste de isolamento,
 - indisponibilidades informativas, consultáveis pela coordenação sem bloquear a escala: concluídas no backend;
 - publicação transacional de escalas completas, confirmação das designações e auditoria: concluídas no backend;
 - limite diário, exceções e histórico de alterações posteriores à publicação: pendentes;
-- contrato mobile para consulta das próprias escalas: pendente;
+- contrato mobile para consulta isolada das próprias escalas publicadas: concluído no backend;
 - aplicativo mobile e notificações push: pendentes.

@@ -1378,6 +1378,7 @@ Esta seção deve ser atualizada ao concluir cada incremento relevante. Ela regi
 - conversão explícita entre horário local da organização e UTC, com testes de deslocamento sazonal;
 - indisponibilidades com intervalos informados pelo servo, consulta pela coordenação e caráter informativo sem bloqueio da designação;
 - publicação transacional de escalas completas, com confirmação das designações, estados explícitos e auditoria;
+- endpoint mobile isolado para o servo consultar somente as próprias escalas publicadas;
 - documentação de Identity, Organizations, Ministries, Scheduling, Missions, segurança, tenancy e painel administrativo.
 
 ### Em andamento
@@ -1397,11 +1398,10 @@ Esta seção deve ser atualizada ao concluir cada incremento relevante. Ela regi
 8. notificações e outbox;
 9. telas administrativas para indisponibilidades, publicação e demais fluxos internos;
 10. ampliar a cobertura PostgreSQL e os cenários de concorrência;
-11. endpoint mobile para consultar as próprias escalas, sem confirmação ou rejeição pelo servo;
-12. aplicativo mobile dos servos com autenticação, escalas e indisponibilidades;
-13. notificações push para publicação, alteração e cancelamento de escala;
-14. testes dos fluxos críticos do aplicativo mobile;
-15. piloto controlado, observabilidade e endurecimento de produção.
+11. aplicativo mobile dos servos com autenticação, escalas e indisponibilidades;
+12. notificações push para publicação, alteração e cancelamento de escala;
+13. testes dos fluxos críticos do aplicativo mobile;
+14. piloto controlado, observabilidade e endurecimento de produção.
 
 ### Fora do primeiro MVP
 

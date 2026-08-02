@@ -64,11 +64,14 @@ Todas as rotas exigem Sanctum e começam em `/api/v1`.
 | `GET`, `POST` | `/organizations/{organization}/events` | listar ou criar eventos internos |
 | `GET` | `/organizations/{organization}/events/{event}` | consultar evento com missões e vagas |
 | `POST` | `/organizations/{organization}/events/{event}/publish` | publicar uma escala interna completa |
+| `GET` | `/me/assignments` | consultar somente as próprias designações publicadas |
 | `GET`, `POST` | `/organizations/{organization}/events/{event}/missions` | listar ou criar missões internas |
 | `GET`, `POST` | `/organizations/{organization}/events/{event}/missions/{mission}/assignments` | listar ou criar designações |
 | `GET` | `/organizations/{organization}/events/{event}/missions/{mission}/slots/{slot}/eligible-members` | listar membros ativos qualificados para a vaga |
 
 Datas recebidas devem representar um instante ISO 8601. A API normaliza o valor para UTC e retorna ISO 8601 em UTC; o cliente é responsável por apresentar no timezone da organização.
+
+O contrato de `minhas escalas` exige autenticação, resolve a pessoa vinculada ao usuário e retorna apenas designações confirmadas de eventos publicados. Rascunhos e designações de outras pessoas não são expostos.
 
 O painel interpreta os campos `datetime-local` no timezone da organização, incluindo o deslocamento vigente na data informada, antes de enviá-los como UTC. A agenda permite criar os catálogos, rascunhos de evento, missões, múltiplas vagas individuais e designações sem expor ações incompatíveis com o papel atual. A consulta de elegibilidade evita chamadas por pessoa e não substitui a revalidação transacional durante a designação.
 

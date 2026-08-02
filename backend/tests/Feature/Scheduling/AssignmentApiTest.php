@@ -172,6 +172,29 @@ final class AssignmentApiTest extends TestCase
         $this->postJson($publishUrl)->assertConflict()->assertJsonPath('code', 'scheduling.schedule_not_draft');
     }
 
+    public function test_servo_sees_only_own_published_assignments(): void
+    {
+        $user = $this->authenticatedUserWithProfile('Servo do aplicativo');
+        $personId = (string) $user->person()->value('id');
+        $organizationId = $this->createOrganization('comunidade-minhas-escalas');
+        [$ministryTypeId, $serviceFunctionId] = $this->createCatalog($organizationId);
+        $this->assignFunction($organizationId, $personId, $serviceFunctionId);
+        [$eventId, $missionId, $slotId] = $this->createSchedule(
+            $organizationId, $ministryTypeId, $serviceFunctionId,
+            '2026-08-25T19:00:00-03:00', '2026-08-25T20:00:00-03:00',
+        );
+        $this->postJson($this->assignmentsUrl($organizationId, $eventId, $missionId), [
+            'mission_slot_id' => $slotId, 'person_id' => $personId,
+        ])->assertCreated();
+
+        $this->getJson('/api/v1/me/assignments')->assertOk()->assertJsonCount(0, 'data');
+        $this->postJson("/api/v1/organizations/{$organizationId}/events/{$eventId}/publish")->assertOk();
+        $this->getJson('/api/v1/me/assignments')->assertOk()->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.status', 'confirmed')
+            ->assertJsonPath('data.0.event.title', 'Celebração')
+            ->assertJsonPath('data.0.function.name', 'Leitor');
+    }
+
     private function authenticatedUserWithProfile(string $name): User
     {
         $user = User::factory()->create();
