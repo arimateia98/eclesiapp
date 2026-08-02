@@ -1396,11 +1396,14 @@ Esta seção deve ser atualizada ao concluir cada incremento relevante. Ela regi
 8. notificações e outbox;
 9. telas administrativas para indisponibilidades, publicação e demais fluxos internos;
 10. ampliar a cobertura PostgreSQL e os cenários de concorrência;
-11. piloto controlado, observabilidade e endurecimento de produção.
+11. endpoints mobile para consultar as próprias escalas e confirmar ou rejeitar designações;
+12. aplicativo mobile dos servos com autenticação, escalas e indisponibilidades;
+13. notificações push para publicação, alteração e cancelamento de escala;
+14. testes dos fluxos críticos do aplicativo mobile;
+15. piloto controlado, observabilidade e endurecimento de produção.
 
 ### Fora do primeiro MVP
 
-- aplicativo mobile e push;
 - trocas de escala;
 - música, hinário e repertório;
 - missões públicas, candidaturas e convites entre organizações;

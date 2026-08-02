@@ -7,9 +7,10 @@ Plataforma de gestão pastoral para organizações religiosas, começando por es
 - PHP 8.4, Laravel 13 e Sanctum;
 - PostgreSQL 17 e Redis 7;
 - Vue 3, TypeScript 6 e Vite 8;
+- React Native e Expo para o aplicativo mobile;
 - Docker Compose, Nginx, Queue, Scheduler e Mailpit.
 
-O aplicativo mobile está reservado para uma etapa posterior ao primeiro MVP.
+O primeiro MVP inclui o aplicativo dos servos para consultar e responder às escalas, informar indisponibilidades e receber notificações push.
 
 ## Requisitos
 
@@ -91,7 +92,7 @@ O comando `docker compose down` para os containers sem remover volumes ou dados.
 ```text
 backend/   API Laravel e módulos do domínio
 frontend/  painel administrativo Vue
-mobile/    aplicativo futuro dos servos
+mobile/    aplicativo dos servos em React Native e Expo
 docker/    imagens e configurações locais
 docs/      arquitetura, escopo e decisões
 ```

@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Permitir que um coordenador planeje e publique uma escala interna sem criar conflito de horário para uma pessoa que serve em mais de uma organização.
+Permitir que um coordenador planeje e publique uma escala interna sem criar conflito de horário e que o servo acompanhe e responda às próprias escalas pelo aplicativo mobile.
 
 ## Dentro do MVP
 
@@ -17,11 +17,15 @@ Permitir que um coordenador planeje e publique uma escala interna sem criar conf
 9. conflito de sobreposição e limite diário configurável;
 10. exceção autorizada com justificativa;
 11. auditoria de ações críticas;
-12. planejamento e consulta pelo painel web.
+12. planejamento e consulta pelo painel web;
+13. aplicativo mobile dos servos;
+14. consulta das próprias escalas;
+15. confirmação ou rejeição de designações;
+16. cadastro de indisponibilidades;
+17. notificações push para publicação e alteração de escala.
 
 ## Fora do MVP
 
-- aplicativo mobile e push;
 - trocas de escala;
 - missões públicas, candidaturas e convites;
 - hinário e repertório;
@@ -37,7 +41,9 @@ O modelo não deve impedir essas evoluções, mas elas não geram endpoints, tel
 4. Events e Missions internas;
 5. Assignments e conflito concorrente;
 6. painel administrativo;
-7. endurecimento e piloto.
+7. publicação, respostas, indisponibilidades e notificações;
+8. aplicativo mobile dos servos;
+9. endurecimento e piloto.
 
 Cada incremento exige migration reversível, autorização, teste de isolamento, tratamento previsível de erro e atualização documental.
 
@@ -51,4 +57,6 @@ Cada incremento exige migration reversível, autorização, teste de isolamento,
 - painel de Events e Missions internas: concluído com timezone organizacional, múltiplas vagas e permissões por papel;
 - Assignments e conflito de sobreposição: concluídos no backend, com qualificação, capacidade da vaga, isolamento multi-organização, bloqueio pessimista e teste PostgreSQL dedicado;
 - interface de designações: concluída com preenchimento por vaga, consulta eficiente de pessoas qualificadas e tratamento dos erros de domínio;
-- limite diário, indisponibilidades, exceções e publicação: pendentes.
+- limite diário, indisponibilidades, exceções e publicação: pendentes;
+- contratos mobile para minhas escalas e resposta à designação: pendentes;
+- aplicativo mobile e notificações push: pendentes.

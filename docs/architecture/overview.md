@@ -2,7 +2,7 @@
 
 ## Contexto
 
-O Eclesiapp é um monorepositório com uma API Laravel, um painel Vue e, futuramente, um aplicativo mobile. O primeiro MVP atende o fluxo interno de planejamento e publicação de escalas.
+O Eclesiapp é um monorepositório com uma API Laravel, um painel Vue e um aplicativo mobile React Native. O primeiro MVP atende o fluxo interno completo: planejamento e publicação pelo painel, consulta e resposta do servo pelo aplicativo.
 
 ## Estilo arquitetural
 
@@ -58,9 +58,9 @@ O fluxo web e o tratamento atual de sessão estão detalhados em [Painel adminis
 - timezone da organização ou usuário é aplicado somente na entrada e apresentação;
 - foreign keys, índices, unicidade e checks complementam as regras da aplicação.
 
-## API e frontend
+## API e clientes
 
-A API começa em `/api/v1`, usa envelopes `data` e erros JSON. Sanctum será usado para autenticação do painel. Tipos de API ficam centralizados no frontend e chamadas HTTP não são realizadas diretamente por componentes visuais.
+A API começa em `/api/v1`, usa envelopes `data` e erros JSON. Sanctum será usado para autenticação do painel e tokens revogáveis para o aplicativo mobile. Tipos de API ficam centralizados em cada cliente e chamadas HTTP não são realizadas diretamente por componentes visuais.
 
 ## Assincronia
 
