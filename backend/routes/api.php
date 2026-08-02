@@ -15,6 +15,7 @@ use App\Modules\Scheduling\Http\Controllers\AssignmentController;
 use App\Modules\Scheduling\Http\Controllers\EventController;
 use App\Modules\Scheduling\Http\Controllers\EventTypeController;
 use App\Modules\Scheduling\Http\Controllers\LocationController;
+use App\Modules\Scheduling\Http\Controllers\UnavailabilityController;
 use App\Shared\Http\Controllers\HealthController;
 use Illuminate\Support\Facades\Route;
 
@@ -32,6 +33,9 @@ Route::prefix('v1')->group(function (): void {
         Route::delete('/auth/token', [AuthController::class, 'logout'])->name('api.v1.auth.logout');
         Route::get('/profile', [PersonProfileController::class, 'show'])->name('api.v1.profile.show');
         Route::post('/profile', [PersonProfileController::class, 'store'])->name('api.v1.profile.store');
+        Route::get('/me/unavailabilities', [UnavailabilityController::class, 'ownIndex']);
+        Route::post('/me/unavailabilities', [UnavailabilityController::class, 'store']);
+        Route::delete('/me/unavailabilities/{unavailability}', [UnavailabilityController::class, 'destroy']);
 
         Route::get('/organizations', [OrganizationController::class, 'index'])->name('api.v1.organizations.index');
         Route::post('/organizations', [OrganizationController::class, 'store'])->name('api.v1.organizations.store');
@@ -40,6 +44,7 @@ Route::prefix('v1')->group(function (): void {
             ->name('api.v1.organizations.members.index');
         Route::post('/organizations/{organization}/members', [OrganizationMemberController::class, 'store'])
             ->name('api.v1.organizations.members.store');
+        Route::get('/organizations/{organization}/members/{person}/unavailabilities', [UnavailabilityController::class, 'memberIndex']);
         Route::get('/organizations/{organization}/ministry-types', [MinistryTypeController::class, 'index'])
             ->name('api.v1.organizations.ministry-types.index');
         Route::post('/organizations/{organization}/ministry-types', [MinistryTypeController::class, 'store'])

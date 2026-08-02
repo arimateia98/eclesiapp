@@ -121,6 +121,27 @@ final class AssignmentApiTest extends TestCase
         $this->assertDatabaseCount('assignments', 1);
     }
 
+    public function test_reported_unavailability_does_not_block_coordinator_assignment(): void
+    {
+        $user = $this->authenticatedUserWithProfile('Servo escalável');
+        $personId = (string) $user->person()->value('id');
+        $organizationId = $this->createOrganization('comunidade-aviso-indisponibilidade');
+        [$ministryTypeId, $serviceFunctionId] = $this->createCatalog($organizationId);
+        $this->assignFunction($organizationId, $personId, $serviceFunctionId);
+        [$eventId, $missionId, $slotId] = $this->createSchedule(
+            $organizationId, $ministryTypeId, $serviceFunctionId,
+            '2026-08-15T19:00:00-03:00', '2026-08-15T20:00:00-03:00',
+        );
+        $this->postJson('/api/v1/me/unavailabilities', [
+            'starts_at' => '2026-08-15T18:00:00-03:00',
+            'ends_at' => '2026-08-15T21:00:00-03:00',
+        ])->assertCreated();
+
+        $this->postJson($this->assignmentsUrl($organizationId, $eventId, $missionId), [
+            'mission_slot_id' => $slotId, 'person_id' => $personId,
+        ])->assertCreated();
+    }
+
     private function authenticatedUserWithProfile(string $name): User
     {
         $user = User::factory()->create();

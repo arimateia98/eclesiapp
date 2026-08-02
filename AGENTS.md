@@ -1212,7 +1212,6 @@ Não fazer push direto na `main` quando houver fluxo com Pull Request.
 
 - aplicativo mobile;
 - consulta de escalas;
-- confirmação;
 - indisponibilidades;
 - notificações.
 
@@ -1377,12 +1376,13 @@ Esta seção deve ser atualizada ao concluir cada incremento relevante. Ela regi
 - painel administrativo para catálogos de agenda, eventos privados em rascunho, missões internas e múltiplas vagas individuais;
 - painel administrativo para montar a escala por vaga, consultar pessoas qualificadas e criar designações;
 - conversão explícita entre horário local da organização e UTC, com testes de deslocamento sazonal;
+- indisponibilidades com intervalos informados pelo servo, consulta pela coordenação e caráter informativo sem bloqueio da designação;
 - documentação de Identity, Organizations, Ministries, Scheduling, Missions, segurança, tenancy e painel administrativo.
 
 ### Em andamento
 
-- indisponibilidades, limite diário configurável, exceções e publicação de escala;
-- modelagem de indisponibilidades e políticas configuráveis de conflito.
+- limite diário configurável, exceções e publicação de escala;
+- políticas configuráveis de conflito.
 
 ### Pendente para o primeiro MVP
 
@@ -1391,16 +1391,19 @@ Esta seção deve ser atualizada ao concluir cada incremento relevante. Ela regi
 3. aceite ou rejeição bilateral de relações entre organizações;
 4. inativação de membership, transferência de propriedade e histórico completo desses fluxos;
 5. publicação e histórico de escala;
-6. indisponibilidades e políticas configuráveis de conflito;
+6. políticas configuráveis de conflito;
 7. exceções autorizadas com justificativa;
 8. notificações e outbox;
 9. telas administrativas para indisponibilidades, publicação e demais fluxos internos;
 10. ampliar a cobertura PostgreSQL e os cenários de concorrência;
-11. piloto controlado, observabilidade e endurecimento de produção.
+11. endpoint mobile para consultar as próprias escalas, sem confirmação ou rejeição pelo servo;
+12. aplicativo mobile dos servos com autenticação, escalas e indisponibilidades;
+13. notificações push para publicação, alteração e cancelamento de escala;
+14. testes dos fluxos críticos do aplicativo mobile;
+15. piloto controlado, observabilidade e endurecimento de produção.
 
 ### Fora do primeiro MVP
 
-- aplicativo mobile e push;
 - trocas de escala;
 - música, hinário e repertório;
 - missões públicas, candidaturas e convites entre organizações;

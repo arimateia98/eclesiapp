@@ -30,6 +30,9 @@ Eventos internos são criados como `private` e `draft`, com publicadora e anfitr
 - a capacidade da vaga considera designações `pending` e `confirmed`;
 - a mesma pessoa não pode ser designada duas vezes para a mesma missão;
 - designações `pending` e `confirmed` não podem ocupar eventos sobrepostos, mesmo quando pertencem a organizações diferentes;
+- indisponibilidades registram somente início e fim informados pelo próprio servo;
+- a coordenação da organização pode consultar as indisponibilidades de seus membros;
+- indisponibilidade é um aviso de planejamento e não impede a coordenação de criar uma designação;
 - a pessoa é bloqueada antes das validações e da persistência, serializando tentativas concorrentes conforme o ADR 0004;
 - a criação da designação e sua auditoria acontecem na mesma transação.
 
@@ -67,4 +70,4 @@ O painel interpreta os campos `datetime-local` no timezone da organização, inc
 
 ## Limites atuais
 
-Ainda não existem edição, cancelamento, publicação, recorrência, locais compartilhados, eventos sediados por outra organização ou vagas para organizações. Também permanecem pendentes indisponibilidades, limite diário configurável, exceções autorizadas, confirmação da pessoa e histórico de alterações de uma escala publicada.
+Ainda não existem edição, cancelamento, publicação, recorrência, locais compartilhados, eventos sediados por outra organização ou vagas para organizações. Também permanecem pendentes limite diário configurável, exceções autorizadas e histórico de alterações de uma escala publicada. A designação é definida pela coordenação e não exige confirmação ou rejeição do servo.
