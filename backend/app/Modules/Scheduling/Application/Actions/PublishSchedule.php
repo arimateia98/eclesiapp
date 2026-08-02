@@ -43,7 +43,7 @@ final readonly class PublishSchedule
             foreach ($event->missions as $mission) {
                 foreach ($mission->slots->where('required', true) as $slot) {
                     $assigned = Assignment::query()->where('mission_slot_id', $slot->getKey())
-                        ->whereIn('status', $active)->lockForUpdate()->count();
+                        ->whereIn('status', $active)->lockForUpdate()->get()->count();
                     if ($assigned < $slot->quantity) {
                         throw new DomainRuleViolation('scheduling.required_slot_unfilled', 'Todas as vagas obrigatórias devem estar preenchidas.', 409);
                     }
