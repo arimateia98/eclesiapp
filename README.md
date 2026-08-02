@@ -10,7 +10,7 @@ Plataforma de gestão pastoral para organizações religiosas, começando por es
 - React Native e Expo para o aplicativo mobile;
 - Docker Compose, Nginx, Queue, Scheduler e Mailpit.
 
-O primeiro MVP inclui o aplicativo dos servos para consultar e responder às escalas, informar indisponibilidades e receber notificações push.
+O primeiro MVP inclui o aplicativo dos servos para consultar as escalas, informar indisponibilidades e receber notificações push. A designação é definida pela coordenação e não exige resposta do servo.
 
 ## Requisitos
 

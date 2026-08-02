@@ -2,7 +2,7 @@
 
 ## Contexto
 
-O Eclesiapp é um monorepositório com uma API Laravel, um painel Vue e um aplicativo mobile React Native. O primeiro MVP atende o fluxo interno completo: planejamento e publicação pelo painel, consulta e resposta do servo pelo aplicativo.
+O Eclesiapp é um monorepositório com uma API Laravel, um painel Vue e um aplicativo mobile React Native. O primeiro MVP atende o fluxo interno completo: planejamento e publicação pelo painel e consulta do servo pelo aplicativo.
 
 ## Estilo arquitetural
 
