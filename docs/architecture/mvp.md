@@ -57,6 +57,7 @@ Cada incremento exige migration reversível, autorização, teste de isolamento,
 - Assignments e conflito de sobreposição: concluídos no backend, com qualificação, capacidade da vaga, isolamento multi-organização, bloqueio pessimista e teste PostgreSQL dedicado;
 - interface de designações: concluída com preenchimento por vaga, consulta eficiente de pessoas qualificadas e tratamento dos erros de domínio;
 - indisponibilidades informativas, consultáveis pela coordenação sem bloquear a escala: concluídas no backend;
-- limite diário, exceções e publicação: pendentes;
+- publicação transacional de escalas completas, confirmação das designações e auditoria: concluídas no backend;
+- limite diário, exceções e histórico de alterações posteriores à publicação: pendentes;
 - contrato mobile para consulta das próprias escalas: pendente;
 - aplicativo mobile e notificações push: pendentes.

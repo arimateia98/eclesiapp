@@ -6,12 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Modules\Identity\Domain\Models\User;
 use App\Modules\Organizations\Domain\Models\Organization;
 use App\Modules\Scheduling\Application\Actions\CreateEvent;
+use App\Modules\Scheduling\Application\Actions\PublishSchedule;
 use App\Modules\Scheduling\Application\DTOs\CreateEventData;
 use App\Modules\Scheduling\Application\Queries\ListEvents;
 use App\Modules\Scheduling\Http\Requests\ListSchedulingResourcesRequest;
 use App\Modules\Scheduling\Http\Requests\StoreEventRequest;
 use App\Modules\Scheduling\Http\Resources\EventResource;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Gate;
 
@@ -55,5 +57,13 @@ final class EventController extends Controller
         );
 
         return (new EventResource($event))->response()->setStatusCode(201);
+    }
+
+    public function publish(Request $request, Organization $organization, string $event, PublishSchedule $action): EventResource
+    {
+        Gate::authorize('manageMembers', $organization);
+        /** @var User $user */ $user = $request->user();
+
+        return new EventResource($action->execute($user, $organization, $event));
     }
 }

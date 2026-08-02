@@ -142,6 +142,36 @@ final class AssignmentApiTest extends TestCase
         ])->assertCreated();
     }
 
+    public function test_coordinator_publishes_only_a_complete_schedule_and_publication_is_audited(): void
+    {
+        $this->authenticatedUserWithProfile('Coordenador publicador');
+        $organizationId = $this->createOrganization('comunidade-publicacao');
+        [$ministryTypeId, $serviceFunctionId] = $this->createCatalog($organizationId);
+        $personId = $this->addMember($organizationId, 'Pessoa escalada');
+        $this->assignFunction($organizationId, $personId, $serviceFunctionId);
+        [$eventId, $missionId, $slotId] = $this->createSchedule(
+            $organizationId, $ministryTypeId, $serviceFunctionId,
+            '2026-08-20T19:00:00-03:00', '2026-08-20T20:00:00-03:00',
+        );
+        $publishUrl = "/api/v1/organizations/{$organizationId}/events/{$eventId}/publish";
+
+        $this->postJson($publishUrl)->assertConflict()->assertJsonPath('code', 'scheduling.required_slot_unfilled');
+        $assignmentId = (string) $this->postJson($this->assignmentsUrl($organizationId, $eventId, $missionId), [
+            'mission_slot_id' => $slotId, 'person_id' => $personId,
+        ])->assertCreated()->json('data.id');
+
+        $this->postJson($publishUrl)->assertOk()
+            ->assertJsonPath('data.status', 'published')
+            ->assertJsonPath('data.missions.0.status', 'filled');
+        $this->assertDatabaseHas('assignments', ['id' => $assignmentId, 'status' => 'confirmed']);
+        $this->assertDatabaseHas('audit_logs', [
+            'organization_id' => $organizationId,
+            'action' => AuditAction::EventPublished->value,
+            'entity_id' => $eventId,
+        ]);
+        $this->postJson($publishUrl)->assertConflict()->assertJsonPath('code', 'scheduling.schedule_not_draft');
+    }
+
     private function authenticatedUserWithProfile(string $name): User
     {
         $user = User::factory()->create();

@@ -67,6 +67,8 @@ Route::prefix('v1')->group(function (): void {
             ->name('api.v1.organizations.events.store');
         Route::get('/organizations/{organization}/events/{event}', [EventController::class, 'show'])
             ->name('api.v1.organizations.events.show');
+        Route::post('/organizations/{organization}/events/{event}/publish', [EventController::class, 'publish'])
+            ->name('api.v1.organizations.events.publish');
         Route::get(
             '/organizations/{organization}/events/{event}/missions',
             [InternalMissionController::class, 'index'],

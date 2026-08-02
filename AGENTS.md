@@ -1377,11 +1377,12 @@ Esta seção deve ser atualizada ao concluir cada incremento relevante. Ela regi
 - painel administrativo para montar a escala por vaga, consultar pessoas qualificadas e criar designações;
 - conversão explícita entre horário local da organização e UTC, com testes de deslocamento sazonal;
 - indisponibilidades com intervalos informados pelo servo, consulta pela coordenação e caráter informativo sem bloqueio da designação;
+- publicação transacional de escalas completas, com confirmação das designações, estados explícitos e auditoria;
 - documentação de Identity, Organizations, Ministries, Scheduling, Missions, segurança, tenancy e painel administrativo.
 
 ### Em andamento
 
-- limite diário configurável, exceções e publicação de escala;
+- limite diário configurável, exceções e histórico posterior à publicação de escala;
 - políticas configuráveis de conflito.
 
 ### Pendente para o primeiro MVP
@@ -1390,7 +1391,7 @@ Esta seção deve ser atualizada ao concluir cada incremento relevante. Ela regi
 2. autenticação web stateful com cookie `HttpOnly` antes de produção;
 3. aceite ou rejeição bilateral de relações entre organizações;
 4. inativação de membership, transferência de propriedade e histórico completo desses fluxos;
-5. publicação e histórico de escala;
+5. histórico de alterações posteriores à publicação de escala;
 6. políticas configuráveis de conflito;
 7. exceções autorizadas com justificativa;
 8. notificações e outbox;
