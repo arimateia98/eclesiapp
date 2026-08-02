@@ -1339,3 +1339,69 @@ Apresente:
 4. plano incremental para o primeiro MVP;
 5. primeira tarefa recomendada com critérios de aceite.
 ```
+
+---
+
+## 34. Estado atual do projeto
+
+Última atualização: 1º de agosto de 2026.
+
+Esta seção deve ser atualizada ao concluir cada incremento relevante. Ela registra estado, não substitui as regras arquiteturais anteriores.
+
+### Concluído
+
+- fundação Docker com `app`, `nginx`, `frontend`, `postgres`, `redis`, `queue`, `scheduler` e `mailpit`;
+- health checks, ambiente local, CI, lint, análise estática e testes base;
+- autenticação por token Sanctum com cadastro, login e logout;
+- separação entre `users` e `people`;
+- organizações, hierarquia opcional e relações flexíveis;
+- memberships e matriz inicial de papéis;
+- policies, filtros explícitos e testes de isolamento organizacional;
+- cadastro de pessoa sem conta por coordenação;
+- auditoria transacional para organização, membership e relação sem dados pessoais privados;
+- migrations com ULIDs, foreign keys, índices parciais, checks PostgreSQL e timestamps com timezone;
+- painel Vue responsivo para cadastro, login, logout, listagem e criação de organizações;
+- cliente HTTP e sessão tipados, com loading, vazio, sucesso, falha e expiração explícitos;
+- área da organização com listagem e cadastro de pessoas sem criação automática de usuário;
+- convite de conta de uso único, armazenado por hash, com expiração de 48 horas e envio após commit;
+- aceite transacional do convite, verificação de e-mail, vínculo entre `people` e `users` e auditoria;
+- fluxo completo no painel para envio pelo Mailpit e criação de acesso pelo link recebido;
+- módulo `Ministries` com tipos de ministério e funções de serviço isolados por organização;
+- competências pessoais atribuídas somente a membros ativos, com proteção contra vínculo cruzado;
+- permissões de catálogo para owner/administrator e de atribuição para coordenação;
+- auditoria transacional de criação, atribuição e remoção de funções;
+- painel para catálogo de ministérios e gestão das competências de cada pessoa;
+- módulos `Scheduling` e `Missions` com tipos de evento, locais, eventos internos, missões internas, vagas individuais e designações;
+- prevenção global de sobreposição de horário, com bloqueio pessimista da pessoa, capacidade da vaga, qualificação e teste dedicado em PostgreSQL;
+- isolamento organizacional, integridade composta e auditoria transacional para eventos e missões;
+- painel administrativo para catálogos de agenda, eventos privados em rascunho, missões internas e múltiplas vagas individuais;
+- painel administrativo para montar a escala por vaga, consultar pessoas qualificadas e criar designações;
+- conversão explícita entre horário local da organização e UTC, com testes de deslocamento sazonal;
+- documentação de Identity, Organizations, Ministries, Scheduling, Missions, segurança, tenancy e painel administrativo.
+
+### Em andamento
+
+- indisponibilidades, limite diário configurável, exceções e publicação de escala;
+- modelagem de indisponibilidades e políticas configuráveis de conflito.
+
+### Pendente para o primeiro MVP
+
+1. recuperação de senha e verificação de e-mail;
+2. autenticação web stateful com cookie `HttpOnly` antes de produção;
+3. aceite ou rejeição bilateral de relações entre organizações;
+4. inativação de membership, transferência de propriedade e histórico completo desses fluxos;
+5. publicação e histórico de escala;
+6. indisponibilidades e políticas configuráveis de conflito;
+7. exceções autorizadas com justificativa;
+8. notificações e outbox;
+9. telas administrativas para indisponibilidades, publicação e demais fluxos internos;
+10. ampliar a cobertura PostgreSQL e os cenários de concorrência;
+11. piloto controlado, observabilidade e endurecimento de produção.
+
+### Fora do primeiro MVP
+
+- aplicativo mobile e push;
+- trocas de escala;
+- música, hinário e repertório;
+- missões públicas, candidaturas e convites entre organizações;
+- geolocalização, relatórios e integrações externas.
