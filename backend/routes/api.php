@@ -15,6 +15,7 @@ use App\Modules\Scheduling\Http\Controllers\AssignmentController;
 use App\Modules\Scheduling\Http\Controllers\EventController;
 use App\Modules\Scheduling\Http\Controllers\EventTypeController;
 use App\Modules\Scheduling\Http\Controllers\LocationController;
+use App\Modules\Scheduling\Http\Controllers\MyAssignmentController;
 use App\Modules\Scheduling\Http\Controllers\UnavailabilityController;
 use App\Shared\Http\Controllers\HealthController;
 use Illuminate\Support\Facades\Route;
@@ -36,6 +37,7 @@ Route::prefix('v1')->group(function (): void {
         Route::get('/me/unavailabilities', [UnavailabilityController::class, 'ownIndex']);
         Route::post('/me/unavailabilities', [UnavailabilityController::class, 'store']);
         Route::delete('/me/unavailabilities/{unavailability}', [UnavailabilityController::class, 'destroy']);
+        Route::get('/me/assignments', MyAssignmentController::class)->name('api.v1.me.assignments.index');
 
         Route::get('/organizations', [OrganizationController::class, 'index'])->name('api.v1.organizations.index');
         Route::post('/organizations', [OrganizationController::class, 'store'])->name('api.v1.organizations.store');
