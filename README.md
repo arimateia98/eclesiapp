@@ -37,6 +37,7 @@ docker compose build
 docker compose run --rm app php artisan key:generate
 docker compose up -d
 docker compose exec app php artisan migrate --force
+docker compose exec app php artisan db:seed --force
 ```
 
 Endereços locais:
@@ -65,6 +66,8 @@ Além do health check, o backend oferece o primeiro recorte de autenticação, p
 O contrato e a matriz de permissões estão em [Identity e Organizations](docs/architecture/identity-and-organizations.md).
 
 O painel em <http://localhost:5173> permite administrar organizações e pessoas, configurar tipos de ministério e funções, atribuir competências e enviar convites de acesso. No ambiente local, os convites chegam ao [Mailpit](http://localhost:8025). O estado e as decisões do frontend estão em [Painel administrativo](docs/architecture/frontend-admin.md).
+
+Para testar com coordenador, servo e uma escala publicada já preparados, consulte [Ambiente local de demonstração](docs/development/local-demo.md).
 
 As portas do banco e do Redis são publicadas apenas em `127.0.0.1`. Os valores dos arquivos de exemplo são exclusivos para desenvolvimento e devem ser substituídos fora do ambiente local.
 

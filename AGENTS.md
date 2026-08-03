@@ -1343,7 +1343,7 @@ Apresente:
 
 ## 34. Estado atual do projeto
 
-Última atualização: 1º de agosto de 2026.
+Última atualização: 3 de agosto de 2026.
 
 Esta seção deve ser atualizada ao concluir cada incremento relevante. Ela registra estado, não substitui as regras arquiteturais anteriores.
 
@@ -1379,6 +1379,7 @@ Esta seção deve ser atualizada ao concluir cada incremento relevante. Ela regi
 - indisponibilidades com intervalos informados pelo servo, consulta pela coordenação e caráter informativo sem bloqueio da designação;
 - publicação transacional de escalas completas, com confirmação das designações, estados explícitos e auditoria;
 - endpoint mobile isolado para o servo consultar somente as próprias escalas publicadas;
+- ambiente local de demonstração idempotente com coordenador, servo e escala publicada, documentado para agentes e testadores;
 - documentação de Identity, Organizations, Ministries, Scheduling, Missions, segurança, tenancy e painel administrativo.
 
 ### Em andamento
