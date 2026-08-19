@@ -93,6 +93,69 @@ paths:
                   meta:
                     $ref: '#/components/schemas/ResponseMeta'
         '401': { description: Não autenticado }
+  /api/v1/session/active-parish:
+    put:
+      operationId: selectActiveParish
+      summary: Seleciona na sessão uma paróquia em que o usuário possui vínculo ativo
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [parish_id]
+              properties:
+                parish_id: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Contexto paroquial selecionado
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, meta]
+                properties:
+                  data: { $ref: '#/components/schemas/ActiveParishContext' }
+                  meta: { $ref: '#/components/schemas/ResponseMeta' }
+        '401': { description: Não autenticado }
+        '403': { description: Sem vínculo ativo com a paróquia }
+        '422': { description: Identificador inválido }
+    delete:
+      operationId: clearActiveParish
+      summary: Remove a seleção paroquial da sessão atual
+      security:
+        - sessionCookie: []
+      responses:
+        '200': { description: Seleção removida }
+        '401': { description: Não autenticado }
+  /api/v1/active-parish:
+    get:
+      operationId: getActiveParish
+      summary: Resolve o contexto paroquial autorizado da requisição
+      description: Usa X-Parish-Id, a seleção da sessão ou seleciona automaticamente o único vínculo ativo.
+      security:
+        - sessionCookie: []
+      parameters:
+        - in: header
+          name: X-Parish-Id
+          required: false
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Contexto paroquial autorizado
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, meta]
+                properties:
+                  data: { $ref: '#/components/schemas/ActiveParishContext' }
+                  meta: { $ref: '#/components/schemas/ResponseMeta' }
+        '401': { description: Não autenticado }
+        '403': { description: Sem vínculo ativo com a paróquia }
+        '409': { description: Seleção explícita necessária }
 components:
   securitySchemes:
     sessionCookie:
@@ -108,10 +171,11 @@ components:
           type: string
     CurrentUser:
       type: object
-      required: [id, email, person, parishes]
+      required: [id, email, active_parish_id, person, parishes]
       properties:
         id: { type: string, format: uuid }
         email: { type: string, format: email }
+        active_parish_id: { type: [string, 'null'], format: uuid }
         person:
           type: object
           required: [id, full_name]
@@ -128,3 +192,17 @@ components:
               id: { type: string, format: uuid }
               name: { type: string }
               timezone: { type: string }
+    ActiveParishContext:
+      type: object
+      required: [parish, roles]
+      properties:
+        parish:
+          type: object
+          required: [id, name, timezone]
+          properties:
+            id: { type: string, format: uuid }
+            name: { type: string }
+            timezone: { type: string }
+        roles:
+          type: array
+          items: { type: string }

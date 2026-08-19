@@ -6,6 +6,7 @@ namespace App\Modules\Identity\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Identity\Models\User;
+use App\Modules\Identity\Support\ActiveParishContext;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -24,10 +25,19 @@ final class MeController extends Controller
             throw new LogicException('Usuário autenticado sem pessoa vinculada.');
         }
 
+        $activeParishId = $request->hasSession()
+            ? $request->session()->get(ActiveParishContext::SESSION_KEY)
+            : null;
+
+        if (! is_string($activeParishId) || ! $user->memberships->contains('parish_id', $activeParishId)) {
+            $activeParishId = null;
+        }
+
         return response()->json([
             'data' => [
                 'id' => $user->id,
                 'email' => $user->login_email,
+                'active_parish_id' => $activeParishId,
                 'person' => [
                     'id' => $person->id,
                     'full_name' => $person->full_name,

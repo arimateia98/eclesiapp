@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Modules\Identity\Http\Controllers\ActiveParishController;
 use App\Modules\Identity\Http\Controllers\MeController;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -22,5 +23,10 @@ Route::prefix('v1')->group(function (): void {
         ])->header('X-Request-Id', $requestId);
     })->name('api.v1.health');
 
-    Route::get('/me', MeController::class)->middleware('auth:sanctum')->name('api.v1.me');
+    Route::middleware('auth:sanctum')->group(function (): void {
+        Route::get('/me', MeController::class)->name('api.v1.me');
+        Route::get('/active-parish', [ActiveParishController::class, 'show'])
+            ->middleware('active.parish')
+            ->name('api.v1.active-parish.show');
+    });
 });

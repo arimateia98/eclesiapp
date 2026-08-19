@@ -4,7 +4,7 @@
 >
 > **Última atualização:** 19 de agosto de 2026
 > **Fase atual:** Fase 1 — Estrutura e acesso
-> **Incremento atual:** configuração operacional e validação real do login Google
+> **Incremento atual:** convites de usuário e ativação de conta
 
 ## 1. Como manter este documento
 
@@ -55,12 +55,24 @@ Não marque algo como desenvolvido apenas porque arquivos foram criados. O incre
 - tela web de acesso local e Google, responsiva e validada no navegador sem erros de console;
 - contrato OpenAPI e exemplos de ambiente atualizados.
 
+### Contexto paroquial e autorização base
+
+- Policy de paróquia exige simultaneamente paróquia ativa e vínculo paroquial ativo;
+- seleção de paróquia ativa persistida por sessão web, sem confiar no identificador enviado pela interface;
+- resolução por `X-Parish-Id` disponível para clientes sem estado, incluindo o futuro aplicativo mobile;
+- único vínculo ativo é resolvido automaticamente; múltiplos vínculos exigem seleção explícita;
+- seleção inexistente, externa, suspensa ou encerrada retorna o mesmo erro sem permitir enumeração;
+- contexto retorna somente papéis vigentes na paróquia e na data da requisição;
+- middleware `active.parish` criado como fronteira obrigatória para os próximos recursos paroquiais;
+- endpoints de seleção, remoção e consulta documentados no OpenAPI;
+- decisão registrada no ADR 0003.
+
 ### Validações já comprovadas
 
 - API respondeu `200` em `http://localhost:8080/api/v1/health`;
 - web respondeu `200` em `http://localhost:3000`;
 - Mailpit respondeu `200` em `http://localhost:8025`;
-- testes backend: 13 testes e 33 asserções aprovados em PostgreSQL real;
+- testes backend: 19 testes e 49 asserções aprovados em PostgreSQL real;
 - Pint sem erros;
 - PHPStan nível 8 sem erros;
 - typecheck web/mobile sem erros;
@@ -69,36 +81,35 @@ Não marque algo como desenvolvido apenas porque arquivos foram criados. O incre
 
 ## 3. Em andamento
 
-### Configuração operacional do login Google
+### Convites de usuário e ativação de conta
 
 Escopo:
 
-- criar um cliente OAuth 2.0 do tipo aplicação Web no Google Cloud;
-- autorizar a origem JavaScript `http://localhost:3000`;
-- autorizar o retorno `http://localhost:8080/auth/google/callback`;
-- preencher `GOOGLE_CLIENT_ID` e `GOOGLE_CLIENT_SECRET` somente no `.env` local ou no cofre do ambiente;
-- executar o fluxo real com uma conta Gmail previamente convidada.
+- permitir que uma administração paroquial convide uma pessoa já cadastrada;
+- gerar token de uso único, persistido somente por hash e com expiração;
+- enviar o link após confirmação da transação;
+- ativar a conta com definição de senha ou permitir o primeiro acesso Google pelo mesmo e-mail;
+- auditar emissão, cancelamento e aceite sem registrar o token.
 
 Critérios de aceite:
 
-- o Google retorna ao callback configurado;
-- uma conta Gmail convidada e ativa entra no sistema;
-- uma conta desconhecida, bloqueada ou com e-mail não verificado não cria usuário e não autentica;
-- nenhum segredo ou token OAuth é versionado;
-- o teste real é registrado neste documento.
+- somente usuário com papel paroquial autorizado em contexto ativo emite convite;
+- convite não revela se o e-mail já possui conta em outra paróquia;
+- token é de uso único, expira e nunca é armazenado em texto claro;
+- aceite é transacional e cria ou vincula usuário sem fundir pessoa e conta;
+- testes cobrem isolamento entre paróquias, expiração, reuso e concorrência básica.
 
 ## 4. Próximos incrementos
 
-1. configurar e validar as credenciais reais do Google;
-2. Policies e resolução segura da paróquia ativa;
-3. convites de usuário sem cadastro público;
-4. CRUD protegido de dioceses, paróquias, comunidades e locais;
-5. organização pastoral: áreas, funções e coordenações com vigência;
-6. cadastro vertical de servo sem usuário;
-7. templates versionados e criação de evento por snapshot;
-8. agenda mensal e publicação;
-9. escala individual transacional com proteção GiST;
-10. painel web e, depois, fluxo mobile.
+1. convites de usuário sem cadastro público;
+2. CRUD protegido de dioceses, paróquias, comunidades e locais;
+3. organização pastoral: áreas, funções e coordenações com vigência;
+4. cadastro vertical de servo sem usuário;
+5. templates versionados e criação de evento por snapshot;
+6. agenda mensal e publicação;
+7. escala individual transacional com proteção GiST;
+8. painel web e, depois, fluxo mobile;
+9. configurar e validar as credenciais reais do Google quando o cliente OAuth estiver disponível.
 
 ## 5. Decisões e suposições vigentes
 
@@ -107,12 +118,16 @@ Critérios de aceite:
 - o MVP terá login local e login Google; o Google é uma alternativa de autenticação, não um fluxo de autocadastro;
 - o primeiro acesso Google exige usuário ativo previamente convidado e e-mail verificado; depois do vínculo, o identificador estável do provedor prevalece;
 - tokens OAuth do Google não serão persistidos enquanto o produto não precisar acessar APIs Google em nome do usuário;
+- contexto paroquial é específico da sessão ou requisição e nunca será uma propriedade global persistida no usuário;
+- toda rota com dados paroquiais deverá usar `active.parish` e ainda aplicar a Policy específica da ação;
 - `COORDINATOR` não será papel global: coordenação terá área e vigência próprias;
 - templates, equipes e eventos preservarão snapshots históricos;
 - operações de escala dependerão de PostgreSQL real e proteção concorrente;
 - questões abertas dos documentos-base permanecem abertas quando não forem necessárias ao incremento atual.
 
 ## 6. Bloqueios e decisões de produto pendentes
+
+- a validação ponta a ponta do login Google depende da criação externa do cliente OAuth e do preenchimento seguro de `GOOGLE_CLIENT_ID` e `GOOGLE_CLIENT_SECRET`;
 
 Consulte as seções de decisões pendentes em:
 
@@ -128,3 +143,4 @@ Antes de implementar confirmação de servo, equipes de música, publicação em
 | 19/08/2026 | Reinício da fundação | Repositório recriado a partir dos novos documentos; Docker e verificações-base aprovados |
 | 19/08/2026 | Estrutura e identidade | Migrations, modelos e constraints iniciais aprovados em PostgreSQL real; suíte protegida contra uso do banco de desenvolvimento |
 | 19/08/2026 | Autenticação do MVP | Login local, sessão Sanctum, `/api/v1/me` e login Google por convite implementados; 13 testes e 33 asserções aprovados; validação real do Google depende das credenciais OAuth |
+| 19/08/2026 | Contexto paroquial | Policy, seleção por sessão, cabeçalho para cliente sem estado, papéis vigentes e middleware de isolamento implementados; 19 testes e 49 asserções aprovados |
