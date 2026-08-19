@@ -340,7 +340,7 @@ Adicionar `lock_version` aos agregados com edição concorrente, especialmente t
 
 ### 9.1 Sem cadastro público no MVP
 
-Usuários entram por convite de uma paróquia. Servos sem usuário são cadastrados pelo coordenador ou administrador e não recebem credenciais.
+Usuários podem criar uma conta antes de possuir paróquia. O autocadastro não cria vínculo paroquial, papel ou registro em `servants`. Padres, administradores e coordenadores recebem vínculo e autorização por fluxo paroquial próprio. Servos sem usuário são cadastrados pelo padre, administrador ou coordenação autorizada e não recebem credenciais automaticamente.
 
 ### 9.2 Web
 

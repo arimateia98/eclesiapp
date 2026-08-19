@@ -33,7 +33,7 @@ O aplicativo mobile é executado no host com `make mobile`.
 
 ## Login com Google
 
-O MVP aceita login local e login Google somente para contas previamente convidadas. Para habilitar o fluxo local:
+O MVP aceita cadastro e login local ou Google. Criar conta não concede vínculo paroquial, papel administrativo ou condição de servo. Para habilitar o fluxo Google:
 
 1. crie no Google Cloud um cliente OAuth 2.0 do tipo aplicação Web;
 2. autorize a origem `http://localhost:3000`;

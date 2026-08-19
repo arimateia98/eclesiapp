@@ -98,6 +98,20 @@ it('requires an explicit context when the user has multiple active parishes', fu
         ->assertJsonPath('code', 'PARISH_CONTEXT_REQUIRED');
 });
 
+it('keeps an account without parish valid but denies parish-scoped resources', function (): void {
+    $user = activeParishUser();
+
+    $this->actingAs($user)
+        ->getJson('/api/v1/me')
+        ->assertOk()
+        ->assertJsonCount(0, 'data.parishes')
+        ->assertJsonPath('data.active_parish_id', null);
+
+    $this->getJson('/api/v1/active-parish')
+        ->assertForbidden()
+        ->assertJsonPath('code', 'NO_ACTIVE_PARISH_MEMBERSHIP');
+});
+
 it('automatically resolves the only active parish', function (): void {
     $user = activeParishUser();
     [$parish] = twoActiveParishes();

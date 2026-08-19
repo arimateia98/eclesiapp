@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Modules\Identity\Http\Controllers\ActiveParishController;
 use App\Modules\Identity\Http\Controllers\MeController;
+use App\Modules\PastoralOrganization\Http\Controllers\ServantController;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -28,5 +29,10 @@ Route::prefix('v1')->group(function (): void {
         Route::get('/active-parish', [ActiveParishController::class, 'show'])
             ->middleware('active.parish')
             ->name('api.v1.active-parish.show');
+        Route::middleware('active.parish')->prefix('/parishes/{parishId}')->group(function (): void {
+            Route::get('/servants', [ServantController::class, 'index'])->name('api.v1.servants.index');
+            Route::post('/servants', [ServantController::class, 'store'])->name('api.v1.servants.store');
+            Route::patch('/servants/{servantId}', [ServantController::class, 'update'])->name('api.v1.servants.update');
+        });
     });
 });

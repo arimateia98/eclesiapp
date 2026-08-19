@@ -33,6 +33,29 @@ main {
 
 .login-card h2 { margin-top: 0; }
 
+.mode-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-bottom: 22px;
+  padding: 4px;
+  border-radius: 11px;
+  background: #edf4f1;
+}
+
+.mode-switch button {
+  margin: 0;
+  border-color: transparent;
+  color: #476057;
+  background: transparent;
+}
+
+.mode-switch button.active {
+  color: #fff;
+  background: #27644f;
+  box-shadow: 0 3px 10px rgb(31 70 55 / 15%);
+}
+
 form { display: grid; gap: 10px; }
 label { color: #344b42; font-weight: 650; }
 input {

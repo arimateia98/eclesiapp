@@ -6,6 +6,7 @@ setup:
 	docker compose build
 	docker compose run --rm api php artisan key:generate
 	docker compose run --rm api php artisan migrate
+	docker compose run --rm api php artisan db:seed
 
 up:
 	docker compose up -d

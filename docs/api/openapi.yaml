@@ -49,6 +49,28 @@ paths:
         '200': { description: Sessão criada }
         '422': { description: Credenciais inválidas }
         '429': { description: Limite de tentativas atingido }
+  /register:
+    post:
+      operationId: registerAccount
+      summary: Cria uma conta sem vínculo paroquial ou cadastro de servo
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [full_name, email, password, password_confirmation]
+              properties:
+                full_name: { type: string, minLength: 2, maxLength: 180 }
+                preferred_name: { type: [string, 'null'], maxLength: 100 }
+                email: { type: string, format: email }
+                password: { type: string, format: password, minLength: 10 }
+                password_confirmation: { type: string, format: password }
+      responses:
+        '201': { description: 'Conta criada e sessão iniciada, ainda sem paróquia ou servo' }
+        '422': { description: Dados inválidos ou cadastro indisponível }
+        '429': { description: Limite de tentativas atingido }
   /logout:
     post:
       operationId: deleteWebSession
@@ -69,7 +91,7 @@ paths:
   /auth/google/callback:
     get:
       operationId: handleGoogleCallback
-      summary: Processa o retorno do Google e cria sessão para conta já convidada
+      summary: Processa o retorno do Google e cria ou vincula uma conta sem conceder paróquia ou servo
       security: []
       responses:
         '302': { description: Redirecionamento para a aplicação web }
@@ -156,7 +178,110 @@ paths:
         '401': { description: Não autenticado }
         '403': { description: Sem vínculo ativo com a paróquia }
         '409': { description: Seleção explícita necessária }
+  /api/v1/parishes/{parishId}/servants:
+    parameters:
+      - $ref: '#/components/parameters/ParishId'
+    get:
+      operationId: listServants
+      summary: Lista servos da paróquia ativa para padre ou administrador
+      security:
+        - sessionCookie: []
+      parameters:
+        - in: query
+          name: search
+          required: false
+          schema: { type: string }
+      responses:
+        '200':
+          description: Lista paginada de servos
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, meta]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/Servant' }
+                  meta: { $ref: '#/components/schemas/ResponseMeta' }
+        '401': { description: Não autenticado }
+        '403': { description: Sem contexto ou papel autorizado }
+    post:
+      operationId: createServant
+      summary: Cria pessoa e vínculo de servo sem gerar usuário
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [full_name]
+              properties:
+                full_name: { type: string, minLength: 2, maxLength: 180 }
+                preferred_name: { type: [string, 'null'], maxLength: 100 }
+                phone: { type: [string, 'null'], maxLength: 32 }
+                email: { type: [string, 'null'], format: email }
+                joined_on: { type: [string, 'null'], format: date }
+      responses:
+        '201':
+          description: Servo criado sem credenciais
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, meta]
+                properties:
+                  data: { $ref: '#/components/schemas/Servant' }
+                  meta: { $ref: '#/components/schemas/ResponseMeta' }
+        '401': { description: Não autenticado }
+        '403': { description: Sem contexto ou papel autorizado }
+        '422': { description: Dados inválidos }
+  /api/v1/parishes/{parishId}/servants/{servantId}:
+    parameters:
+      - $ref: '#/components/parameters/ParishId'
+      - in: path
+        name: servantId
+        required: true
+        schema: { type: string, format: uuid }
+    patch:
+      operationId: updateServant
+      summary: Altera o estado do vínculo pastoral sem apagar seu histórico
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: { type: string, enum: [ACTIVE, INACTIVE, SUSPENDED] }
+                left_on: { type: [string, 'null'], format: date }
+      responses:
+        '200':
+          description: Vínculo atualizado
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, meta]
+                properties:
+                  data: { $ref: '#/components/schemas/Servant' }
+                  meta: { $ref: '#/components/schemas/ResponseMeta' }
+        '401': { description: Não autenticado }
+        '403': { description: Sem contexto ou papel autorizado }
+        '404': { description: Servo não encontrado na paróquia ativa }
+        '422': { description: Dados inválidos }
 components:
+  parameters:
+    ParishId:
+      in: path
+      name: parishId
+      required: true
+      schema: { type: string, format: uuid }
   securitySchemes:
     sessionCookie:
       type: apiKey
@@ -206,3 +331,22 @@ components:
         roles:
           type: array
           items: { type: string }
+    Servant:
+      type: object
+      required: [id, parish_id, person, status, joined_on, left_on, has_user]
+      properties:
+        id: { type: string, format: uuid }
+        parish_id: { type: string, format: uuid }
+        person:
+          type: object
+          required: [id, full_name, preferred_name, phone, email]
+          properties:
+            id: { type: string, format: uuid }
+            full_name: { type: string }
+            preferred_name: { type: [string, 'null'] }
+            phone: { type: [string, 'null'] }
+            email: { type: [string, 'null'], format: email }
+        status: { type: string, enum: [ACTIVE, INACTIVE, SUSPENDED] }
+        joined_on: { type: [string, 'null'], format: date }
+        left_on: { type: [string, 'null'], format: date }
+        has_user: { type: boolean }

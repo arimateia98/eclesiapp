@@ -18,6 +18,10 @@ final class ResolveUserParishContext
         $memberships = $this->activeMemberships($user);
 
         if ($requestedParishId === null) {
+            if ($memberships->isEmpty()) {
+                throw ParishContextException::unavailable();
+            }
+
             if ($memberships->count() !== 1) {
                 throw ParishContextException::required();
             }
@@ -31,9 +35,9 @@ final class ResolveUserParishContext
             }
         }
 
-        $parish = $membership?->parish;
+        $parish = $membership->parish;
 
-        if (! $membership || ! $parish) {
+        if (! $parish) {
             throw ParishContextException::accessDenied();
         }
 

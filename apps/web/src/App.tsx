@@ -13,6 +13,21 @@ function App() {
         : '',
   )
   const [loading, setLoading] = useState(false)
+  const [mode, setMode] = useState<'login' | 'register'>('login')
+
+  async function sessionHeaders() {
+    await fetch(`${apiUrl}/sanctum/csrf-cookie`, { credentials: 'include' })
+    const xsrfToken = document.cookie
+      .split('; ')
+      .find((cookie) => cookie.startsWith('XSRF-TOKEN='))
+      ?.split('=')[1]
+
+    return {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      ...(xsrfToken ? { 'X-XSRF-TOKEN': decodeURIComponent(xsrfToken) } : {}),
+    }
+  }
 
   async function login(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -22,20 +37,10 @@ function App() {
     const form = new FormData(event.currentTarget)
 
     try {
-      await fetch(`${apiUrl}/sanctum/csrf-cookie`, { credentials: 'include' })
-      const xsrfToken = document.cookie
-        .split('; ')
-        .find((cookie) => cookie.startsWith('XSRF-TOKEN='))
-        ?.split('=')[1]
-
       const response = await fetch(`${apiUrl}/login`, {
         method: 'POST',
         credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-          ...(xsrfToken ? { 'X-XSRF-TOKEN': decodeURIComponent(xsrfToken) } : {}),
-        },
+        headers: await sessionHeaders(),
         body: JSON.stringify({
           email: form.get('email'),
           password: form.get('password'),
@@ -50,35 +55,96 @@ function App() {
     }
   }
 
+  async function register(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    setLoading(true)
+    setMessage('')
+
+    const form = new FormData(event.currentTarget)
+
+    try {
+      const response = await fetch(`${apiUrl}/register`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: await sessionHeaders(),
+        body: JSON.stringify({
+          full_name: form.get('full_name'),
+          preferred_name: form.get('preferred_name') || null,
+          email: form.get('email'),
+          password: form.get('password'),
+          password_confirmation: form.get('password_confirmation'),
+        }),
+      })
+
+      setMessage(
+        response.ok
+          ? 'Conta criada. Você ainda não possui vínculo paroquial nem cadastro de servo.'
+          : 'Não foi possível criar a conta. Revise os dados informados.',
+      )
+    } catch {
+      setMessage('A API não está disponível. Tente novamente.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <main>
       <p className="eyebrow">Gestão pastoral</p>
       <h1>eclEZapp</h1>
       <p className="lead">
-        Entre com a conta convidada pela sua paróquia.
+        Entre ou crie sua conta. O vínculo com uma paróquia acontece separadamente.
       </p>
 
       <section className="login-card" aria-labelledby="login-title">
-        <h2 id="login-title">Acessar</h2>
-        <form onSubmit={login}>
-          <label htmlFor="email">E-mail</label>
-          <input id="email" name="email" type="email" autoComplete="email" required />
+        <div className="mode-switch" aria-label="Escolha entre entrar e criar conta">
+          <button type="button" className={mode === 'login' ? 'active' : ''} onClick={() => setMode('login')}>Entrar</button>
+          <button type="button" className={mode === 'register' ? 'active' : ''} onClick={() => setMode('register')}>Criar conta</button>
+        </div>
 
-          <label htmlFor="password">Senha</label>
-          <input id="password" name="password" type="password" autoComplete="current-password" required />
+        <h2 id="login-title">{mode === 'login' ? 'Acessar' : 'Criar conta'}</h2>
+        {mode === 'login' ? (
+          <form onSubmit={login}>
+            <label htmlFor="login-email">E-mail</label>
+            <input id="login-email" name="email" type="email" autoComplete="email" required />
 
-          <button type="submit" disabled={loading}>
-            {loading ? 'Entrando…' : 'Entrar'}
-          </button>
-        </form>
+            <label htmlFor="login-password">Senha</label>
+            <input id="login-password" name="password" type="password" autoComplete="current-password" required />
+
+            <button type="submit" disabled={loading}>
+              {loading ? 'Entrando…' : 'Entrar'}
+            </button>
+          </form>
+        ) : (
+          <form onSubmit={register}>
+            <label htmlFor="full-name">Nome completo</label>
+            <input id="full-name" name="full_name" type="text" autoComplete="name" required />
+
+            <label htmlFor="preferred-name">Como prefere ser chamado</label>
+            <input id="preferred-name" name="preferred_name" type="text" autoComplete="nickname" />
+
+            <label htmlFor="register-email">E-mail</label>
+            <input id="register-email" name="email" type="email" autoComplete="email" required />
+
+            <label htmlFor="register-password">Senha</label>
+            <input id="register-password" name="password" type="password" minLength={10} autoComplete="new-password" required />
+
+            <label htmlFor="password-confirmation">Confirmar senha</label>
+            <input id="password-confirmation" name="password_confirmation" type="password" minLength={10} autoComplete="new-password" required />
+
+            <button type="submit" disabled={loading}>
+              {loading ? 'Criando…' : 'Criar minha conta'}
+            </button>
+          </form>
+        )}
 
         <div className="separator"><span>ou</span></div>
 
         <a className="google-button" href={`${apiUrl}/auth/google/redirect`}>
-          Entrar com Google
+          Continuar com Google
         </a>
 
-        <p className="invitation-note">O acesso é permitido somente para contas previamente convidadas.</p>
+        <p className="invitation-note">Criar uma conta não torna você servo e não concede acesso a nenhuma paróquia.</p>
         {message && <p className="feedback" role="status">{message}</p>}
       </section>
     </main>

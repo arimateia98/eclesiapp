@@ -1,6 +1,6 @@
 # ADR 0002 — Autenticação local e Google por convite
 
-- **Status:** aceito
+- **Status:** superado pelo ADR 0004
 - **Data:** 19 de agosto de 2026
 
 ## Contexto

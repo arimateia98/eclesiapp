@@ -4,7 +4,7 @@
 >
 > **Última atualização:** 19 de agosto de 2026
 > **Fase atual:** Fase 1 — Estrutura e acesso
-> **Incremento atual:** convites de usuário e ativação de conta
+> **Incremento atual:** painel de servos e habilitações pastorais
 
 ## 1. Como manter este documento
 
@@ -47,13 +47,34 @@ Não marque algo como desenvolvido apenas porque arquivos foram criados. O incre
 ### Autenticação do MVP
 
 - Laravel Sanctum configurado para autenticação web stateful por cookie e CSRF;
-- login local e logout sem cadastro público, com limitação de tentativas e mensagens que não revelam a existência da conta;
+- autocadastro local e logout com sessão segura, limitação de tentativas e senha confirmada;
 - endpoint protegido `GET /api/v1/me`, limitado à pessoa e aos vínculos paroquiais ativos do usuário;
 - login com Google implementado com Socialite/OpenID Connect;
-- conta Google somente é vinculada a um usuário ativo previamente convidado, após confirmação de e-mail verificado;
+- primeiro acesso Google cria ou vincula uma conta a partir de e-mail verificado, sem conceder paróquia ou condição de servo;
 - o identificador estável do provedor é persistido em `user_external_identities`; tokens de acesso e atualização do Google não são armazenados;
 - tela web de acesso local e Google, responsiva e validada no navegador sem erros de console;
 - contrato OpenAPI e exemplos de ambiente atualizados.
+
+### Contas sem paróquia
+
+- usuário pode se registrar antes de possuir vínculo paroquial;
+- cadastro cria `people + users`, mas não cria membership, papel ou `servants`;
+- conta sem paróquia autentica e consulta o próprio perfil, recebendo lista paroquial vazia;
+- recursos paroquiais retornam `NO_ACTIVE_PARISH_MEMBERSHIP` para essa conta;
+- interface explica que conta, vínculo paroquial e servo são condições independentes;
+- decisão registrada no ADR 0004.
+
+### Servos — vínculo pastoral inicial
+
+- tabela `servants` separada de `people` e `users`, com UUID, paróquia, estado, período e autor do cadastro;
+- restrições de estado, período, unicidade por pessoa/paróquia, foreign keys e índice parcial para vínculos ativos;
+- padre ou administrador paroquial vigente pode listar, pesquisar, cadastrar e alterar o estado de servos;
+- criar servo cria uma pessoa sem gerar usuário ou credenciais;
+- usuário `PARISH_VIEWER` não administra servos;
+- divergência entre paróquia da rota e contexto autorizado é bloqueada antes da consulta;
+- inativação e suspensão preservam o histórico do vínculo;
+- catálogo inicial de papéis paroquiais é idempotente no seeder;
+- endpoints e schema de servo documentados no OpenAPI.
 
 ### Contexto paroquial e autorização base
 
@@ -72,7 +93,7 @@ Não marque algo como desenvolvido apenas porque arquivos foram criados. O incre
 - API respondeu `200` em `http://localhost:8080/api/v1/health`;
 - web respondeu `200` em `http://localhost:3000`;
 - Mailpit respondeu `200` em `http://localhost:8025`;
-- testes backend: 19 testes e 49 asserções aprovados em PostgreSQL real;
+- testes backend: 28 testes e 95 asserções aprovados em PostgreSQL real;
 - Pint sem erros;
 - PHPStan nível 8 sem erros;
 - typecheck web/mobile sem erros;
@@ -81,42 +102,44 @@ Não marque algo como desenvolvido apenas porque arquivos foram criados. O incre
 
 ## 3. Em andamento
 
-### Convites de usuário e ativação de conta
+### Painel de servos e habilitações pastorais
 
 Escopo:
 
-- permitir que uma administração paroquial convide uma pessoa já cadastrada;
-- gerar token de uso único, persistido somente por hash e com expiração;
-- enviar o link após confirmação da transação;
-- ativar a conta com definição de senha ou permitir o primeiro acesso Google pelo mesmo e-mail;
-- auditar emissão, cancelamento e aceite sem registrar o token.
+- permitir que padre ou administrador consulte e cadastre servos pela interface web;
+- implementar áreas e funções pastorais mínimas;
+- habilitar servo em uma função sem exigir usuário;
+- manter dados de contato restritos aos papéis autorizados;
+- preparar coordenação por área sem transformar coordenador em servo automaticamente.
 
 Critérios de aceite:
 
-- somente usuário com papel paroquial autorizado em contexto ativo emite convite;
-- convite não revela se o e-mail já possui conta em outra paróquia;
-- token é de uso único, expira e nunca é armazenado em texto claro;
-- aceite é transacional e cria ou vincula usuário sem fundir pessoa e conta;
-- testes cobrem isolamento entre paróquias, expiração, reuso e concorrência básica.
+- servo pode existir e ser administrado sem possuir usuário;
+- padre/coordenador pode possuir usuário sem ser servo;
+- habilitação exige servo e função da mesma paróquia;
+- isolamento paroquial e proteção de contatos possuem testes;
+- interface apresenta loading, vazio, erro e sucesso.
 
 ## 4. Próximos incrementos
 
-1. convites de usuário sem cadastro público;
-2. CRUD protegido de dioceses, paróquias, comunidades e locais;
-3. organização pastoral: áreas, funções e coordenações com vigência;
-4. cadastro vertical de servo sem usuário;
+1. painel web de servos;
+2. áreas, funções, habilitações de servos e coordenações com vigência;
+3. gestão de usuários administrativos para padres e coordenadores;
+4. CRUD mínimo de comunidades e locais necessário aos eventos;
 5. templates versionados e criação de evento por snapshot;
 6. agenda mensal e publicação;
-7. escala individual transacional com proteção GiST;
-8. painel web e, depois, fluxo mobile;
-9. configurar e validar as credenciais reais do Google quando o cliente OAuth estiver disponível.
+7. escala individual transacional apontando para `servants`;
+8. fluxo mobile do servo somente quando a pessoa também possuir usuário;
+9. configurar verificação de e-mail e recuperação de senha;
+10. configurar e validar as credenciais reais do Google quando o cliente OAuth estiver disponível.
 
 ## 5. Decisões e suposições vigentes
 
 - o banco e a API permitem que uma mesma pessoa/conta tenha vínculos com mais de uma paróquia; nenhuma interface obrigará esse uso até decisão do produto;
-- não haverá cadastro público no MVP;
-- o MVP terá login local e login Google; o Google é uma alternativa de autenticação, não um fluxo de autocadastro;
-- o primeiro acesso Google exige usuário ativo previamente convidado e e-mail verificado; depois do vínculo, o identificador estável do provedor prevalece;
+- haverá autocadastro no MVP sem concessão automática de paróquia, papel ou condição de servo;
+- o MVP terá cadastro e login local e Google; o primeiro acesso Google exige e-mail verificado;
+- `users` representa credencial; `servants` representa vínculo escalável e nenhum deles substitui `people`;
+- padres e coordenadores precisam de usuário, mas só terão servo se também puderem ser escalados;
 - tokens OAuth do Google não serão persistidos enquanto o produto não precisar acessar APIs Google em nome do usuário;
 - contexto paroquial é específico da sessão ou requisição e nunca será uma propriedade global persistida no usuário;
 - toda rota com dados paroquiais deverá usar `active.parish` e ainda aplicar a Policy específica da ação;
@@ -144,3 +167,5 @@ Antes de implementar confirmação de servo, equipes de música, publicação em
 | 19/08/2026 | Estrutura e identidade | Migrations, modelos e constraints iniciais aprovados em PostgreSQL real; suíte protegida contra uso do banco de desenvolvimento |
 | 19/08/2026 | Autenticação do MVP | Login local, sessão Sanctum, `/api/v1/me` e login Google por convite implementados; 13 testes e 33 asserções aprovados; validação real do Google depende das credenciais OAuth |
 | 19/08/2026 | Contexto paroquial | Policy, seleção por sessão, cabeçalho para cliente sem estado, papéis vigentes e middleware de isolamento implementados; 19 testes e 49 asserções aprovados |
+| 19/08/2026 | Autocadastro desacoplado | Cadastro local e Google permitido sem paróquia, papel ou servo; ADR 0004 supera a exigência anterior de convite para criar conta |
+| 19/08/2026 | Servos — núcleo | Tabela, modelo, Policies e API inicial de servos sem usuário; isolamento por paróquia e histórico de estado testados; 28 testes e 95 asserções aprovados |

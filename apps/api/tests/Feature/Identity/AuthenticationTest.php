@@ -88,18 +88,22 @@ it('links a verified Google identity only to a pre-existing active account', fun
         ->toBe($user->id);
 });
 
-it('does not create a public account from an unknown Google identity', function (): void {
+it('creates an account without parish membership from a new verified Google identity', function (): void {
     config(['services.google.client_id' => 'client', 'services.google.client_secret' => 'secret']);
 
     $googleUser = (new SocialiteUser)->map([
         'id' => 'unknown-google-subject',
         'email' => 'desconhecido@gmail.com',
-        'name' => 'Desconhecido',
+        'name' => 'Pessoa sem Paróquia',
     ])->setRaw(['verified_email' => true]);
 
     Socialite::fake('google', $googleUser);
 
-    $this->get('/auth/google/callback')->assertRedirect('http://localhost:3000/?auth_error=access_not_authorized');
-    $this->assertGuest();
-    expect(User::query()->count())->toBe(0);
+    $this->get('/auth/google/callback')->assertRedirect('http://localhost:3000/?auth=google');
+
+    $user = User::query()->where('login_email', 'desconhecido@gmail.com')->firstOrFail();
+    $this->assertAuthenticatedAs($user);
+    expect($user->memberships()->count())->toBe(0)
+        ->and($user->person?->full_name)->toBe('Pessoa sem Paróquia')
+        ->and($user->email_verified_at)->not->toBeNull();
 });

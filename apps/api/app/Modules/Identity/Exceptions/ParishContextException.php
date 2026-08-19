@@ -25,6 +25,15 @@ final class ParishContextException extends RuntimeException
         );
     }
 
+    public static function unavailable(): self
+    {
+        return new self(
+            'NO_ACTIVE_PARISH_MEMBERSHIP',
+            403,
+            'A conta ainda não possui vínculo paroquial ativo.',
+        );
+    }
+
     public static function accessDenied(): self
     {
         return new self(
