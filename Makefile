@@ -1,19 +1,11 @@
-.PHONY: env build key up down logs migrate test lint analyse frontend-quality quality setup
+.PHONY: setup up down migrate seed test lint typecheck api-docs web mobile
 
-env:
-	@test -f .env || cp .env.example .env
-	@test -f backend/.env || cp backend/.env.example backend/.env
-	@test -f frontend/.env || cp frontend/.env.example frontend/.env
-
-build:
+setup:
+	cp .env.example .env
+	cp apps/api/.env.example apps/api/.env
 	docker compose build
-
-key:
-	@if grep -q '^APP_KEY=$$' backend/.env; then \
-		docker compose run --rm app php artisan key:generate; \
-	else \
-		echo "APP_KEY já configurada; nenhuma rotação foi realizada."; \
-	fi
+	docker compose run --rm api php artisan key:generate
+	docker compose run --rm api php artisan migrate
 
 up:
 	docker compose up -d
@@ -21,26 +13,30 @@ up:
 down:
 	docker compose down
 
-logs:
-	docker compose logs -f app nginx frontend queue scheduler
-
 migrate:
-	docker compose exec app php artisan migrate --force
+	docker compose run --rm api php artisan migrate
+
+seed:
+	docker compose run --rm api php artisan db:seed
 
 test:
-	docker compose run --rm app composer test
+	docker compose up -d --wait postgres_test
+	docker compose run --rm --no-deps -e APP_ENV=testing -e DB_CONNECTION=pgsql -e DB_HOST=postgres_test -e DB_PORT=5432 -e DB_DATABASE=eclezapp_test -e DB_USERNAME=eclezapp_test -e DB_PASSWORD=test api php artisan test
+	pnpm test
 
 lint:
-	docker compose run --rm app composer lint
+	docker compose run --rm api ./vendor/bin/pint --test
+	docker compose run --rm api ./vendor/bin/phpstan analyse
+	pnpm lint
 
-analyse:
-	docker compose run --rm app composer analyse
+typecheck:
+	pnpm typecheck
 
-frontend-quality:
-	docker compose run --rm frontend npm run lint
-	docker compose run --rm frontend npm run test
-	docker compose run --rm frontend npm run build
+api-docs:
+	pnpm dlx @redocly/cli lint docs/api/openapi.yaml
 
-quality: lint analyse test frontend-quality
+web:
+	pnpm --filter @eclezapp/web dev
 
-setup: env build key up migrate
+mobile:
+	pnpm --filter @eclezapp/mobile start

@@ -1,103 +1,54 @@
-# Eclesiapp
+# eclEZapp
 
-Plataforma de gestão pastoral para organizações religiosas, começando por escalas internas com prevenção de conflitos.
+Plataforma de gestão pastoral para estrutura paroquial, agendas, equipes e escalas de serviço.
 
-## Stack
+## Estado
 
-- PHP 8.4, Laravel 13 e Sanctum;
-- PostgreSQL 17 e Redis 7;
-- Vue 3, TypeScript 6 e Vite 8;
-- React Native e Expo para o aplicativo mobile;
-- Docker Compose, Nginx, Queue, Scheduler e Mailpit.
+O projeto foi reiniciado em 19 de agosto de 2026 com base nos documentos de arquitetura versão 0.1. A fundação usa um monorepo com Laravel 13, React, Expo, PostgreSQL e Redis.
 
-O primeiro MVP inclui o aplicativo dos servos para consultar as escalas, informar indisponibilidades e receber notificações push. A designação é definida pela coordenação e não exige resposta do servo.
+## Estrutura
 
-## Requisitos
+- `apps/api`: API Laravel 13;
+- `apps/web`: aplicação administrativa React/Vite;
+- `apps/mobile`: aplicativo React Native/Expo;
+- `packages`: contratos e configurações compartilhados;
+- `docs`: domínio, arquitetura, OpenAPI e ADRs;
+- `infra`: imagens e configuração local.
 
-- Docker Desktop com Docker Compose v2;
-- Git;
-- portas locais `5173`, `8080`, `5433`, `6380`, `8025` e `1025` disponíveis.
+## Pré-requisitos
 
-PHP, Composer, Node e npm locais não são necessários.
+- Docker Desktop em execução;
+- Node.js 22.13 ou superior;
+- pnpm 11.19;
+- `make` opcional para os atalhos documentados.
 
-## Primeiro uso
+## Início rápido
 
-Crie os arquivos locais de ambiente a partir dos exemplos:
+1. Copie `.env.example` para `.env`.
+2. Execute `make setup`.
+3. Execute `make up`.
+4. Acesse a web em `http://localhost:3000`, a API em `http://localhost:8080` e o Mailpit em `http://localhost:8025`.
 
-```powershell
-Copy-Item .env.example .env
-Copy-Item backend/.env.example backend/.env
-Copy-Item frontend/.env.example frontend/.env
-```
+O aplicativo mobile é executado no host com `make mobile`.
 
-Construa a imagem, gere a chave local, suba os serviços e execute as migrations:
+## Login com Google
 
-```powershell
-docker compose build
-docker compose run --rm app php artisan key:generate
-docker compose up -d
-docker compose exec app php artisan migrate --force
-docker compose exec app php artisan db:seed --force
-```
+O MVP aceita login local e login Google somente para contas previamente convidadas. Para habilitar o fluxo local:
 
-Endereços locais:
+1. crie no Google Cloud um cliente OAuth 2.0 do tipo aplicação Web;
+2. autorize a origem `http://localhost:3000`;
+3. autorize o retorno `http://localhost:8080/auth/google/callback`;
+4. preencha `GOOGLE_CLIENT_ID` e `GOOGLE_CLIENT_SECRET` no `.env`, sem versionar o segredo.
 
-- painel: <http://localhost:5173>;
-- API: <http://localhost:8080/api/v1/health>;
-- Mailpit: <http://localhost:8025>.
+Sem essas credenciais, o botão permanece visível, mas a API responde com indisponibilidade controlada em vez de iniciar o fluxo externo.
 
-## API disponível
+## Testes
 
-Além do health check, o backend oferece o primeiro recorte de autenticação, pessoas e organizações em `/api/v1`:
+Execute `make test`. Esse comando usa o serviço efêmero `postgres_test` e um banco cujo nome termina em `_test`. A suíte interrompe a execução se detectar outro banco, protegendo os dados locais de desenvolvimento.
 
-- `POST /auth/register` e `POST /auth/login` emitem token Sanctum;
-- `DELETE /auth/token` revoga o token atual;
-- `GET|POST /profile` consulta ou cria o perfil separado da conta;
-- `GET|POST /organizations` lista ou cria organizações;
-- `GET /organizations/{id}` respeita visibilidade e membership;
-- `GET|POST /organizations/{id}/members` lista ou cadastra pessoa sem exigir conta;
-- `POST /organizations/{id}/members/{person}/account-invitations` envia convite de acesso;
-- `POST /auth/account-invitations/accept` cria a conta e vincula a pessoa por token de uso único;
-- `GET|POST /organizations/{id}/ministry-types` mantém o catálogo de ministérios;
-- `GET|POST /organizations/{id}/service-functions` mantém funções de serviço;
-- `GET|POST|DELETE /organizations/{id}/members/{person}/functions` mantém competências pessoais;
-- `POST /organizations/{id}/relationships` relaciona organizações com autorização nos dois lados.
+## Documentação obrigatória
 
-O contrato e a matriz de permissões estão em [Identity e Organizations](docs/architecture/identity-and-organizations.md).
-
-O painel em <http://localhost:5173> permite administrar organizações e pessoas, configurar tipos de ministério e funções, atribuir competências e enviar convites de acesso. No ambiente local, os convites chegam ao [Mailpit](http://localhost:8025). O estado e as decisões do frontend estão em [Painel administrativo](docs/architecture/frontend-admin.md).
-
-Para testar com coordenador, servo e uma escala publicada já preparados, consulte [Ambiente local de demonstração](docs/development/local-demo.md).
-
-As portas do banco e do Redis são publicadas apenas em `127.0.0.1`. Os valores dos arquivos de exemplo são exclusivos para desenvolvimento e devem ser substituídos fora do ambiente local.
-
-## Qualidade
-
-```powershell
-docker compose run --rm app composer lint
-docker compose run --rm app composer analyse
-docker compose run --rm app composer test
-docker compose run --rm frontend npm run lint
-docker compose run --rm frontend npm run test
-docker compose run --rm frontend npm run build
-```
-
-Para iniciar as ferramentas opcionais:
-
-```powershell
-docker compose --profile tools up -d adminer redisinsight
-```
-
-O comando `docker compose down` para os containers sem remover volumes ou dados.
-
-## Organização do repositório
-
-```text
-backend/   API Laravel e módulos do domínio
-frontend/  painel administrativo Vue
-mobile/    aplicativo dos servos em React Native e Expo
-docker/    imagens e configurações locais
-docs/      arquitetura, escopo e decisões
-```
-
-Antes de implementar regras do domínio, leia [AGENTS.md](AGENTS.md), [visão de arquitetura](docs/architecture/overview.md) e [ADRs](docs/decisions/README.md).
+- `docs/ECLEZAPP_AGENTS_AND_DATABASE.md`;
+- `docs/ECLEZAPP_DEVELOPMENT_GUIDE.md`;
+- `docs/DEVELOPMENT_STATUS.md`;
+- `docs/adr/`.

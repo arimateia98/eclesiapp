@@ -1,0 +1,71 @@
+main {
+  width: min(680px, calc(100% - 48px));
+  margin: auto;
+  padding: 72px 0;
+  text-align: left;
+}
+
+.eyebrow {
+  margin: 0 0 12px;
+  color: #27644f;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.lead {
+  max-width: 620px;
+  color: #4f5f59;
+  font-size: clamp(1.1rem, 2vw, 1.35rem);
+  line-height: 1.6;
+}
+
+.login-card {
+  max-width: 440px;
+  margin-top: 36px;
+  padding: 28px;
+  border: 1px solid #d6e1dc;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 18px 50px rgb(31 70 55 / 8%);
+}
+
+.login-card h2 { margin-top: 0; }
+
+form { display: grid; gap: 10px; }
+label { color: #344b42; font-weight: 650; }
+input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border: 1px solid #adbbb5;
+  border-radius: 9px;
+  font: inherit;
+}
+input:focus { outline: 3px solid #acd7c6; border-color: #27644f; }
+button, .google-button {
+  display: block;
+  margin-top: 8px;
+  padding: 12px 16px;
+  border: 1px solid #27644f;
+  border-radius: 9px;
+  font: inherit;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+button { color: #fff; background: #27644f; }
+button:disabled { cursor: wait; opacity: 0.7; }
+.google-button { color: #24453a; background: #fff; }
+.google-button:hover { background: #f3faf7; }
+.separator { display: flex; align-items: center; gap: 12px; margin: 18px 0 10px; color: #6b7772; }
+.separator::before, .separator::after { content: ''; height: 1px; flex: 1; background: #d6e1dc; }
+.invitation-note, .feedback { color: #586760; font-size: 0.9rem; line-height: 1.5; }
+.feedback { padding: 10px 12px; border-radius: 8px; background: #f3faf7; color: #25483c; }
+
+@media (max-width: 520px) {
+  main { width: min(100% - 28px, 680px); padding: 36px 0; }
+  .login-card { padding: 20px; }
+}

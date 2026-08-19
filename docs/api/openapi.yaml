@@ -1,0 +1,130 @@
+openapi: 3.1.0
+info:
+  title: eclEZapp API
+  version: 0.1.0
+  description: Contrato inicial da API compartilhada pelas aplicações web e mobile.
+servers:
+  - url: http://localhost:8080
+    description: Ambiente local
+paths:
+  /api/v1/health:
+    get:
+      operationId: getHealth
+      summary: Verifica a disponibilidade da API
+      security: []
+      responses:
+        '200':
+          description: API disponível
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, meta]
+                properties:
+                  data:
+                    type: object
+                    required: [status]
+                    properties:
+                      status:
+                        type: string
+                        const: ok
+                  meta:
+                    $ref: '#/components/schemas/ResponseMeta'
+  /login:
+    post:
+      operationId: createWebSession
+      summary: Cria uma sessão web para uma conta previamente convidada
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string, format: password }
+      responses:
+        '200': { description: Sessão criada }
+        '422': { description: Credenciais inválidas }
+        '429': { description: Limite de tentativas atingido }
+  /logout:
+    post:
+      operationId: deleteWebSession
+      summary: Encerra a sessão web atual
+      security:
+        - sessionCookie: []
+      responses:
+        '200': { description: Sessão encerrada }
+        '401': { description: Sessão inexistente }
+  /auth/google/redirect:
+    get:
+      operationId: redirectToGoogle
+      summary: Inicia autenticação OpenID Connect com Google
+      security: []
+      responses:
+        '302': { description: Redirecionamento para o Google }
+        '503': { description: Provedor não configurado no ambiente }
+  /auth/google/callback:
+    get:
+      operationId: handleGoogleCallback
+      summary: Processa o retorno do Google e cria sessão para conta já convidada
+      security: []
+      responses:
+        '302': { description: Redirecionamento para a aplicação web }
+  /api/v1/me:
+    get:
+      operationId: getCurrentUser
+      summary: Retorna a pessoa e as paróquias ativas da sessão
+      security:
+        - sessionCookie: []
+      responses:
+        '200':
+          description: Contexto autenticado
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, meta]
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CurrentUser'
+                  meta:
+                    $ref: '#/components/schemas/ResponseMeta'
+        '401': { description: Não autenticado }
+components:
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: laravel_session
+  schemas:
+    ResponseMeta:
+      type: object
+      required: [request_id]
+      properties:
+        request_id:
+          type: string
+    CurrentUser:
+      type: object
+      required: [id, email, person, parishes]
+      properties:
+        id: { type: string, format: uuid }
+        email: { type: string, format: email }
+        person:
+          type: object
+          required: [id, full_name]
+          properties:
+            id: { type: string, format: uuid }
+            full_name: { type: string }
+            preferred_name: { type: [string, 'null'] }
+        parishes:
+          type: array
+          items:
+            type: object
+            required: [id, name, timezone]
+            properties:
+              id: { type: string, format: uuid }
+              name: { type: string }
+              timezone: { type: string }

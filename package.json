@@ -1,0 +1,17 @@
+{
+  "name": "eclezapp",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@11.19.0",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "build": "pnpm --filter @eclezapp/web build",
+    "dev:web": "pnpm --filter @eclezapp/web dev",
+    "dev:mobile": "pnpm --filter @eclezapp/mobile start",
+    "lint": "pnpm -r --if-present lint",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "test": "pnpm -r --if-present test"
+  }
+}

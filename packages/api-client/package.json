@@ -1,0 +1,6 @@
+{
+  "name": "@eclezapp/api-client",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Saída gerada do contrato OpenAPI; não editar tipos manualmente."
+}
