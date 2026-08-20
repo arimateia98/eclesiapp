@@ -27,7 +27,7 @@ final class ServantController extends Controller
 
         $servants = Servant::query()
             ->where('parish_id', $context->parish->id)
-            ->with('person')
+            ->with(['person', 'functions.pastoralFunction.area'])
             ->when($search !== '', function ($query) use ($search): void {
                 $query->whereHas('person', fn ($personQuery) => $personQuery->where('full_name', 'ILIKE', '%'.$search.'%'));
             })
@@ -95,13 +95,32 @@ final class ServantController extends Controller
         return $context;
     }
 
-    /** @return array{id: string, parish_id: string, person: array{id: string, full_name: string, preferred_name: string|null, phone: string|null, email: string|null}, status: string, joined_on: string|null, left_on: string|null, has_user: bool} */
+    /** @return array{id: string, parish_id: string, person: array{id: string, full_name: string, preferred_name: string|null, phone: string|null, email: string|null}, status: string, joined_on: string|null, left_on: string|null, has_user: bool, functions: list<array{id: string, status: string, function_id: string, function_name: string, area_name: string|null}>} */
     private function serialize(Servant $servant): array
     {
         $person = $servant->person;
 
         if (! $person) {
             throw new \LogicException('Servo sem pessoa vinculada.');
+        }
+
+        /** @var list<array{id: string, status: string, function_id: string, function_name: string, area_name: string|null}> $functions */
+        $functions = [];
+
+        foreach ($servant->functions as $qualification) {
+            $function = $qualification->pastoralFunction;
+
+            if (! $function) {
+                throw new \LogicException('HabilitaÃ§Ã£o sem funÃ§Ã£o pastoral vinculada.');
+            }
+
+            $functions[] = [
+                'id' => (string) $qualification->id,
+                'status' => (string) $qualification->status,
+                'function_id' => (string) $function->id,
+                'function_name' => (string) $function->name,
+                'area_name' => $function->area ? (string) $function->area->name : null,
+            ];
         }
 
         return [
@@ -118,6 +137,7 @@ final class ServantController extends Controller
             'joined_on' => $servant->joined_on?->toDateString(),
             'left_on' => $servant->left_on?->toDateString(),
             'has_user' => $person->user()->exists(),
+            'functions' => $functions,
         ];
     }
 }

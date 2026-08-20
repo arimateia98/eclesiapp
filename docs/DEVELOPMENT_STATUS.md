@@ -4,7 +4,7 @@
 >
 > **Última atualização:** 19 de agosto de 2026
 > **Fase atual:** Fase 1 — Estrutura e acesso
-> **Incremento atual:** painel de servos e habilitações pastorais
+> **Incremento atual:** coordenações pastorais e gestão de acessos
 
 ## 1. Como manter este documento
 
@@ -76,6 +76,18 @@ Não marque algo como desenvolvido apenas porque arquivos foram criados. O incre
 - catálogo inicial de papéis paroquiais é idempotente no seeder;
 - endpoints e schema de servo documentados no OpenAPI.
 
+### Catálogo pastoral, habilitações e painel administrativo
+
+- tabelas `pastoral_areas`, `pastoral_functions` e `servant_functions` criadas por migration reversível;
+- chaves compostas no PostgreSQL impedem habilitar um servo em função de outra paróquia;
+- estados, modos de designação, períodos, unicidades e autoria protegidos no banco;
+- padre ou administrador pode listar e criar áreas e funções e habilitar servos ativos;
+- habilitação pode existir para servo sem conta de usuário e registra quem a aprovou;
+- Policy compartilhada centraliza a regra de administração pastoral sem conceder acesso a `PARISH_VIEWER`;
+- painel autenticado apresenta conta sem paróquia, contexto paroquial, estados vazios/erros e cadastros de servos, áreas, funções e habilitações;
+- dados de contato continuam restritos aos endpoints de padre ou administrador;
+- endpoints e schemas foram incorporados ao OpenAPI.
+
 ### Contexto paroquial e autorização base
 
 - Policy de paróquia exige simultaneamente paróquia ativa e vínculo paroquial ativo;
@@ -93,7 +105,7 @@ Não marque algo como desenvolvido apenas porque arquivos foram criados. O incre
 - API respondeu `200` em `http://localhost:8080/api/v1/health`;
 - web respondeu `200` em `http://localhost:3000`;
 - Mailpit respondeu `200` em `http://localhost:8025`;
-- testes backend: 28 testes e 95 asserções aprovados em PostgreSQL real;
+- testes backend: 32 testes e 113 asserções aprovados em PostgreSQL real;
 - Pint sem erros;
 - PHPStan nível 8 sem erros;
 - typecheck web/mobile sem erros;
@@ -102,36 +114,34 @@ Não marque algo como desenvolvido apenas porque arquivos foram criados. O incre
 
 ## 3. Em andamento
 
-### Painel de servos e habilitações pastorais
+### Coordenações pastorais e gestão de acessos
 
 Escopo:
 
-- permitir que padre ou administrador consulte e cadastre servos pela interface web;
-- implementar áreas e funções pastorais mínimas;
-- habilitar servo em uma função sem exigir usuário;
-- manter dados de contato restritos aos papéis autorizados;
-- preparar coordenação por área sem transformar coordenador em servo automaticamente.
+- criar atribuição de coordenação por área e período de vigência;
+- permitir que padre ou administrador vincule uma conta existente como coordenador;
+- liberar ao coordenador somente os servos e funções das áreas sob sua responsabilidade;
+- manter coordenador como usuário sem criar `servants` automaticamente.
 
 Critérios de aceite:
 
-- servo pode existir e ser administrado sem possuir usuário;
-- padre/coordenador pode possuir usuário sem ser servo;
-- habilitação exige servo e função da mesma paróquia;
-- isolamento paroquial e proteção de contatos possuem testes;
-- interface apresenta loading, vazio, erro e sucesso.
+- atribuição possui início, fim opcional, autor e histórico preservado;
+- coordenador precisa de conta e membership ativo, mas não precisa ser servo;
+- permissão é limitada à área coordenada e ao período vigente;
+- isolamento entre paróquias e áreas possui testes de Policy e PostgreSQL;
+- painel diferencia claramente padre, administrador e coordenador.
 
 ## 4. Próximos incrementos
 
-1. painel web de servos;
-2. áreas, funções, habilitações de servos e coordenações com vigência;
-3. gestão de usuários administrativos para padres e coordenadores;
-4. CRUD mínimo de comunidades e locais necessário aos eventos;
-5. templates versionados e criação de evento por snapshot;
-6. agenda mensal e publicação;
-7. escala individual transacional apontando para `servants`;
-8. fluxo mobile do servo somente quando a pessoa também possuir usuário;
-9. configurar verificação de e-mail e recuperação de senha;
-10. configurar e validar as credenciais reais do Google quando o cliente OAuth estiver disponível.
+1. coordenações por área com vigência e permissões limitadas;
+2. gestão de usuários administrativos para padres e coordenadores;
+3. CRUD mínimo de comunidades e locais necessário aos eventos;
+4. templates versionados e criação de evento por snapshot;
+5. agenda mensal e publicação;
+6. escala individual transacional apontando para `servants`;
+7. fluxo mobile do servo somente quando a pessoa também possuir usuário;
+8. configurar verificação de e-mail e recuperação de senha;
+9. configurar e validar as credenciais reais do Google quando o cliente OAuth estiver disponível.
 
 ## 5. Decisões e suposições vigentes
 
@@ -169,3 +179,4 @@ Antes de implementar confirmação de servo, equipes de música, publicação em
 | 19/08/2026 | Contexto paroquial | Policy, seleção por sessão, cabeçalho para cliente sem estado, papéis vigentes e middleware de isolamento implementados; 19 testes e 49 asserções aprovados |
 | 19/08/2026 | Autocadastro desacoplado | Cadastro local e Google permitido sem paróquia, papel ou servo; ADR 0004 supera a exigência anterior de convite para criar conta |
 | 19/08/2026 | Servos — núcleo | Tabela, modelo, Policies e API inicial de servos sem usuário; isolamento por paróquia e histórico de estado testados; 28 testes e 95 asserções aprovados |
+| 19/08/2026 | Catálogo e painel pastoral | Áreas, funções e habilitações com integridade composta; painel para padre/administrador e fluxo de servo sem usuário; 32 testes e 113 asserções aprovados |

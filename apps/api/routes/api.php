@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 use App\Modules\Identity\Http\Controllers\ActiveParishController;
 use App\Modules\Identity\Http\Controllers\MeController;
+use App\Modules\PastoralOrganization\Http\Controllers\PastoralAreaController;
+use App\Modules\PastoralOrganization\Http\Controllers\PastoralFunctionController;
 use App\Modules\PastoralOrganization\Http\Controllers\ServantController;
+use App\Modules\PastoralOrganization\Http\Controllers\ServantFunctionController;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -33,6 +36,12 @@ Route::prefix('v1')->group(function (): void {
             Route::get('/servants', [ServantController::class, 'index'])->name('api.v1.servants.index');
             Route::post('/servants', [ServantController::class, 'store'])->name('api.v1.servants.store');
             Route::patch('/servants/{servantId}', [ServantController::class, 'update'])->name('api.v1.servants.update');
+            Route::post('/servants/{servantId}/functions', [ServantFunctionController::class, 'store'])
+                ->name('api.v1.servant-functions.store');
+            Route::get('/pastoral-areas', [PastoralAreaController::class, 'index'])->name('api.v1.pastoral-areas.index');
+            Route::post('/pastoral-areas', [PastoralAreaController::class, 'store'])->name('api.v1.pastoral-areas.store');
+            Route::get('/pastoral-functions', [PastoralFunctionController::class, 'index'])->name('api.v1.pastoral-functions.index');
+            Route::post('/pastoral-functions', [PastoralFunctionController::class, 'store'])->name('api.v1.pastoral-functions.store');
         });
     });
 });

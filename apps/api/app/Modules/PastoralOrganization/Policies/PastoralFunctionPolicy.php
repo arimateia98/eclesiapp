@@ -6,10 +6,9 @@ namespace App\Modules\PastoralOrganization\Policies;
 
 use App\Modules\EcclesialStructure\Models\Parish;
 use App\Modules\Identity\Models\User;
-use App\Modules\PastoralOrganization\Models\Servant;
 use App\Modules\PastoralOrganization\Support\ParishPastoralAccess;
 
-final class ServantPolicy
+final class PastoralFunctionPolicy
 {
     public function __construct(private readonly ParishPastoralAccess $access) {}
 
@@ -21,12 +20,5 @@ final class ServantPolicy
     public function create(User $user, Parish $parish): bool
     {
         return $this->access->canManage($user, $parish);
-    }
-
-    public function update(User $user, Servant $servant): bool
-    {
-        $parish = $servant->parish;
-
-        return $parish instanceof Parish && $this->access->canManage($user, $parish);
     }
 }

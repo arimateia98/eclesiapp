@@ -275,6 +275,124 @@ paths:
         '403': { description: Sem contexto ou papel autorizado }
         '404': { description: Servo não encontrado na paróquia ativa }
         '422': { description: Dados inválidos }
+  /api/v1/parishes/{parishId}/pastoral-areas:
+    parameters:
+      - $ref: '#/components/parameters/ParishId'
+    get:
+      operationId: listPastoralAreas
+      summary: Lista areas pastorais da paroquia ativa
+      security:
+        - sessionCookie: []
+      responses:
+        '200':
+          description: Catalogo de areas pastorais
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, meta]
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/PastoralArea' } }
+                  meta: { $ref: '#/components/schemas/ResponseMeta' }
+        '401': { description: Nao autenticado }
+        '403': { description: Sem contexto ou papel autorizado }
+    post:
+      operationId: createPastoralArea
+      summary: Cria uma area pastoral na paroquia ativa
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [code, name]
+              properties:
+                code: { type: string, pattern: '^[A-Z0-9_]+$', maxLength: 60 }
+                name: { type: string, minLength: 2, maxLength: 140 }
+                description: { type: [string, 'null'], maxLength: 2000 }
+      responses:
+        '201': { description: Area pastoral criada }
+        '401': { description: Nao autenticado }
+        '403': { description: Sem contexto ou papel autorizado }
+        '422': { description: Dados invalidos ou codigo duplicado }
+  /api/v1/parishes/{parishId}/pastoral-functions:
+    parameters:
+      - $ref: '#/components/parameters/ParishId'
+    get:
+      operationId: listPastoralFunctions
+      summary: Lista funcoes pastorais da paroquia ativa
+      security:
+        - sessionCookie: []
+      responses:
+        '200':
+          description: Catalogo de funcoes pastorais
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, meta]
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/PastoralFunction' } }
+                  meta: { $ref: '#/components/schemas/ResponseMeta' }
+        '401': { description: Nao autenticado }
+        '403': { description: Sem contexto ou papel autorizado }
+    post:
+      operationId: createPastoralFunction
+      summary: Cria uma funcao vinculada a uma area da mesma paroquia
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [pastoral_area_id, code, name, assignment_mode, requires_qualification]
+              properties:
+                pastoral_area_id: { type: string, format: uuid }
+                code: { type: string, pattern: '^[A-Z0-9_]+$', maxLength: 80 }
+                name: { type: string, minLength: 2, maxLength: 140 }
+                assignment_mode: { type: string, enum: [PERSON, TEAM, EITHER] }
+                requires_qualification: { type: boolean }
+      responses:
+        '201': { description: Funcao pastoral criada }
+        '401': { description: Nao autenticado }
+        '403': { description: Sem contexto ou papel autorizado }
+        '422': { description: 'Dados invalidos, area externa ou codigo duplicado' }
+  /api/v1/parishes/{parishId}/servants/{servantId}/functions:
+    parameters:
+      - $ref: '#/components/parameters/ParishId'
+      - in: path
+        name: servantId
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      operationId: qualifyServant
+      summary: Cria ou atualiza a habilitacao pastoral de um servo
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [pastoral_function_id]
+              properties:
+                pastoral_function_id: { type: string, format: uuid }
+                status: { type: string, enum: [PENDING, QUALIFIED, SUSPENDED, EXPIRED] }
+                qualified_on: { type: [string, 'null'], format: date }
+                expires_on: { type: [string, 'null'], format: date }
+                notes: { type: [string, 'null'], maxLength: 2000 }
+      responses:
+        '200': { description: Habilitacao existente atualizada }
+        '201': { description: Habilitacao criada }
+        '401': { description: Nao autenticado }
+        '403': { description: Sem contexto ou papel autorizado }
+        '404': { description: Servo nao encontrado na paroquia ativa }
+        '422': { description: 'Funcao externa, inativa ou dados invalidos' }
 components:
   parameters:
     ParishId:
@@ -333,7 +451,7 @@ components:
           items: { type: string }
     Servant:
       type: object
-      required: [id, parish_id, person, status, joined_on, left_on, has_user]
+      required: [id, parish_id, person, status, joined_on, left_on, has_user, functions]
       properties:
         id: { type: string, format: uuid }
         parish_id: { type: string, format: uuid }
@@ -350,3 +468,38 @@ components:
         joined_on: { type: [string, 'null'], format: date }
         left_on: { type: [string, 'null'], format: date }
         has_user: { type: boolean }
+        functions:
+          type: array
+          items:
+            type: object
+            required: [id, status, function_id, function_name, area_name]
+            properties:
+              id: { type: string, format: uuid }
+              status: { type: string, enum: [PENDING, QUALIFIED, SUSPENDED, EXPIRED] }
+              function_id: { type: string, format: uuid }
+              function_name: { type: string }
+              area_name: { type: [string, 'null'] }
+    PastoralArea:
+      type: object
+      required: [id, parish_id, code, name, description, status, functions_count]
+      properties:
+        id: { type: string, format: uuid }
+        parish_id: { type: string, format: uuid }
+        code: { type: string }
+        name: { type: string }
+        description: { type: [string, 'null'] }
+        status: { type: string, enum: [ACTIVE, INACTIVE] }
+        functions_count: { type: integer, minimum: 0 }
+    PastoralFunction:
+      type: object
+      required: [id, parish_id, pastoral_area_id, area_name, code, name, assignment_mode, requires_qualification, status]
+      properties:
+        id: { type: string, format: uuid }
+        parish_id: { type: string, format: uuid }
+        pastoral_area_id: { type: string, format: uuid }
+        area_name: { type: [string, 'null'] }
+        code: { type: string }
+        name: { type: string }
+        assignment_mode: { type: string, enum: [PERSON, TEAM, EITHER] }
+        requires_qualification: { type: boolean }
+        status: { type: string, enum: [ACTIVE, INACTIVE] }
