@@ -13,6 +13,18 @@ beforeEach(function (): void {
     $this->withoutMiddleware(ThrottleRequests::class);
 });
 
+it('allows the web application to preflight account registration', function (): void {
+    $this->withHeaders([
+        'Origin' => 'http://localhost:3000',
+        'Access-Control-Request-Method' => 'POST',
+        'Access-Control-Request-Headers' => 'content-type,x-xsrf-token',
+    ])->options('/register')
+        ->assertNoContent()
+        ->assertHeader('Access-Control-Allow-Origin', 'http://localhost:3000')
+        ->assertHeader('Access-Control-Allow-Credentials', 'true')
+        ->assertHeader('Access-Control-Allow-Methods');
+});
+
 it('registers and authenticates an account without parish or servant status', function (): void {
     $response = $this->postJson('/register', [
         'full_name' => 'Ana sem Vínculo',

@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 return [
-    'paths' => ['api/*', 'login', 'logout', 'sanctum/csrf-cookie'],
+    'paths' => ['api/*', 'login', 'register', 'logout', 'sanctum/csrf-cookie'],
     'allowed_methods' => ['*'],
     'allowed_origins' => array_filter(explode(',', (string) env('CORS_ALLOWED_ORIGINS', 'http://localhost:3000'))),
     'allowed_origins_patterns' => [],

@@ -53,6 +53,7 @@ Não marque algo como desenvolvido apenas porque arquivos foram criados. O incre
 - primeiro acesso Google cria ou vincula uma conta a partir de e-mail verificado, sem conceder paróquia ou condição de servo;
 - o identificador estável do provedor é persistido em `user_external_identities`; tokens de acesso e atualização do Google não são armazenados;
 - tela web de acesso local e Google, responsiva e validada no navegador sem erros de console;
+- preflight CORS cobre login, autocadastro, logout, CSRF e rotas versionadas usadas pelo painel web;
 - contrato OpenAPI e exemplos de ambiente atualizados.
 
 ### Contas sem paróquia
@@ -105,7 +106,7 @@ Não marque algo como desenvolvido apenas porque arquivos foram criados. O incre
 - API respondeu `200` em `http://localhost:8080/api/v1/health`;
 - web respondeu `200` em `http://localhost:3000`;
 - Mailpit respondeu `200` em `http://localhost:8025`;
-- testes backend: 32 testes e 113 asserções aprovados em PostgreSQL real;
+- testes backend: 33 testes e 120 asserções aprovados em PostgreSQL real;
 - Pint sem erros;
 - PHPStan nível 8 sem erros;
 - typecheck web/mobile sem erros;
@@ -180,3 +181,4 @@ Antes de implementar confirmação de servo, equipes de música, publicação em
 | 19/08/2026 | Autocadastro desacoplado | Cadastro local e Google permitido sem paróquia, papel ou servo; ADR 0004 supera a exigência anterior de convite para criar conta |
 | 19/08/2026 | Servos — núcleo | Tabela, modelo, Policies e API inicial de servos sem usuário; isolamento por paróquia e histórico de estado testados; 28 testes e 95 asserções aprovados |
 | 19/08/2026 | Catálogo e painel pastoral | Áreas, funções e habilitações com integridade composta; painel para padre/administrador e fluxo de servo sem usuário; 32 testes e 113 asserções aprovados |
+| 19/08/2026 | Correção do autocadastro web | Rota `/register` incluída no CORS com teste de preflight para o painel em `localhost:3000` |
